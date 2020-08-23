@@ -82,11 +82,6 @@ handson-ml() {
     jupyter notebook > jupyter_log.txt 2>&1 &
 }
 
-##############################
-## Custom GIT aliases
-##############################
-alias gl1='git log --oneline'
-
 ############################
 ## Extending jrnl functionality
 ############################
@@ -112,3 +107,8 @@ alias gym-sessions="jrnl @gym @shoulders @legs @chest @back @strength_class @ful
 # Updates to allowe updating of fastlane
 export GEM_HOME=~/.gems
 export PATH=$PATH:~/.gems/bin
+
+# Test if ~/.aliases exists and source it
+if [ -f ./.aliases ]; then
+    source ./.aliases
+fi
