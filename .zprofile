@@ -104,7 +104,7 @@ alias timesheet-edit="jrnl timesheet -1 --edit"
 alias thought-diary="jrnl thought_diary < /Users/kishanarava/Library/Mobile\ Documents/com~apple~CloudDocs/jrnl/templates/thought_diary.txt; jrnl thought_diary -1 --edit"
 alias gym-sessions="jrnl @gym @shoulders @legs @chest @back @strength_class @full_body"
 
-# Updates to allowe updating of fastlane
+# Updates to allow updating of fastlane
 export GEM_HOME=~/.gems
 export PATH=$PATH:~/.gems/bin
 
@@ -112,3 +112,6 @@ export PATH=$PATH:~/.gems/bin
 if [ -f ./.aliases ]; then
     source ./.aliases
 fi
+
+# enable fasd
+eval "$(fasd --init auto)"

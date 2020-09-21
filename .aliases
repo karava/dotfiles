@@ -1,3 +1,4 @@
+# Save you from mistyping
 alias sl=ls
 
 ##############################
@@ -5,4 +6,7 @@ alias sl=ls
 ##############################
 alias gl1='git log --oneline'
 
+# Save a lot of typing for common commands
+alias v="vim"
+alias gs="git status"
 
