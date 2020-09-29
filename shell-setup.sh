@@ -33,7 +33,8 @@ fi
 # TMUX - Terminal multiplexer
 
 # OH-MY-ZSH - Popular zsh shell configuration with nicetices
+set +x  # turn of verbosity so doesn't show entire code page
 if [[ ! -d $HOME/.oh-my-zsh ]]; then
-    curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh
-
+    sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+fi
 # BROOT - Better version of tree with search
