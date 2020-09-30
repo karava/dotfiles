@@ -1,0 +1,11 @@
+# This is Git's per-user configuration file.
+[user]
+    name = Kishan Arava
+    email = kishan.arava@gmail.com
+
+[core]
+	excludesfile = ~/.gitignore_global
+    editor = vim
+
+[alias]
+    graph = log --all --decorate --oneline --graph
