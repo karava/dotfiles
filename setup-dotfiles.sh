@@ -24,11 +24,15 @@ function backup_if_exists() {
 
 # Clean common conflicts
 backup_if_exists ~/.bash_profile
+backup_if_exists ~/.aliases
 backup_if_exists ~/.bashrc
 backup_if_exists ~/.gitconfig
 backup_if_exists ~/.tmux.conf
 backup_if_exists ~/.zshrc
 backup_if_exists ~/.zprofile
+backup_if_exists ~/.stow-global-ignore
+backup_if_exists ~/.vimrc
+backup_if_exists ~/.env
 
 mkdir -p ~/.vim/undodir
 
