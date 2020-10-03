@@ -21,8 +21,10 @@ if [[ ! -f $HOME/bin/fasd ]]; then
     cd -
 fi
 
-
-
+# DIFF-SO-FANCY
+if [[ ! -f $HOME/bin/diff-so-fancy ]]; then
+    curl -o $HOME/bin/diff-so-fancy https://raw.githubusercontent.com/so-fancy/diff-so-fancy/master/third_party/build_fatpack/diff-so-fancy
+fi
 
 # NNN - Nice directory navigator using cursor keys 
 

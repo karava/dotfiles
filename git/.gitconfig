@@ -1,11 +1,27 @@
-# This is Git's per-user configuration file.
 [user]
     name = Kishan Arava
     email = kishan.arava@gmail.com
-
 [core]
 	excludesfile = ~/.gitignore_global
     editor = vim
-
+[pager]
+	diff = diff-so-fancy | less --tabs=4 -RFX
+	show = diff-so-fancy | less --tabs=4 -RFX
 [alias]
     graph = log --all --decorate --oneline --graph
+[color "diff-highlight"]
+	oldNormal = red bold
+	oldHighlight = red bold 52
+	newNormal = green bold
+	newHighlight = green bold 22
+[color "diff"]
+	meta = 11
+	frag = magenta bold
+	commit = yellow bold
+	old = red bold
+	new = green bold
+	whitespace = red reverse
+[color]
+	ui = true
+[diff-so-fancy]
+	markEmptyLines = false
