@@ -113,5 +113,10 @@ if [ -f ~/.aliases ]; then
     source ~/.aliases
 fi
 
+# Environment setup
+if [ -f ~/.env ]; then
+    source ~/.env
+fi
+
 # enable fasd
 eval "$(fasd --init auto)"
