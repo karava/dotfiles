@@ -109,8 +109,8 @@ export GEM_HOME=~/.gems
 export PATH=$PATH:~/.gems/bin
 
 # Test if ~/.aliases exists and source it
-if [ -f ./.aliases ]; then
-    source ./.aliases
+if [ -f ~/.aliases ]; then
+    source ~/.aliases
 fi
 
 # enable fasd
