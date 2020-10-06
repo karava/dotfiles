@@ -10,3 +10,18 @@ alias gl1='git log --oneline'
 alias v="vim"
 alias gs="git status"
 alias dl='cd ~/Downloads'
+
+# fetch autocomplete suggestions from Google
+function auto() {
+    url='https://www.google.com/complete/search?client=hp&hl=en&xhr=t'
+    # NB: user-agent must be specified to get back UTF-8 data!
+    curl -H 'user-agent: Mozilla/5.0' -sSG --data-urlencode "q=$*" "$url" |
+        jq -r ".[1][][0]" |
+        sed 's,</\?b>,,g'
+}
+
+# Yotube-DL
+alias yt="youtube-dl"
+alias yta="youtube-dl --extract-audio --audio-format mp3"
+alias ytad="youtube-dl --extract-audio --audio-format mp3 --write-description --add-metadata"
+
