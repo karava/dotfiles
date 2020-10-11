@@ -1,4 +1,4 @@
-#!/usr/bin/env zsh
+#!/usr/bin/env bash
 
 # enable shell mode to print executed commands to terminal
 set -x
