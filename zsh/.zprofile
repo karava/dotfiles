@@ -120,3 +120,6 @@ fi
 
 # enable fasd
 eval "$(fasd --init auto)"
+
+# On linux fzf auto adds this line
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
