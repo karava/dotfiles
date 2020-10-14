@@ -47,10 +47,10 @@ alias kishdroplet-old='ssh root@139.59.228.125'
 export LC_ALL=en_US.UTF-8
 export LANG=en_US.UTF-8
 
+if [[ "$(hostname)" == "MacBook-Pro-156.local" ]]; then
+    echo "for the win"; 
+fi
 
-. /Users/kishanarava/anaconda3/etc/profile.d/conda.sh
-. /Users/kishanarava/anaconda3/etc/profile.d/conda.sh
-. /Users/kishanarava/anaconda3/etc/profile.d/conda.sh
 . /Users/kishanarava/anaconda3/etc/profile.d/conda.sh
 conda activate
 
