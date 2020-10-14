@@ -47,13 +47,10 @@ alias kishdroplet-old='ssh root@139.59.228.125'
 export LC_ALL=en_US.UTF-8
 export LANG=en_US.UTF-8
 
-
-. /Users/kishanarava/anaconda3/etc/profile.d/conda.sh
-. /Users/kishanarava/anaconda3/etc/profile.d/conda.sh
-. /Users/kishanarava/anaconda3/etc/profile.d/conda.sh
-. /Users/kishanarava/anaconda3/etc/profile.d/conda.sh
-conda activate
-
+if [[ "$(hostname)" == "MacBook-Pro-156.local" ]]; then
+    . /Users/kishanarava/anaconda3/etc/profile.d/conda.sh
+    conda activate
+fi
 
 # aliases for easy access to common folders
 alias wstafolder='cd "/Users/kishanarava/Library/Mobile Documents/com~apple~CloudDocs/Uni/COMP90042 - WSTA"'
