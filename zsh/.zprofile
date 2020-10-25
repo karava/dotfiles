@@ -1,5 +1,6 @@
 export PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/Users/kishanarava/documents/coding/mongodb/bin
 export PATH="$HOME/.fastlane/bin:$PATH"
+export PATH=$PATH:~/.local/bin
 
 # added by Anaconda3 5.2.0 installer
 # export PATH="/Users/kishanarava/anaconda3/bin:$PATH"
