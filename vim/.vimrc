@@ -93,3 +93,4 @@ inoremap <Down>  <ESC>:echoe "Use j"<CR>
 set background=dark
 set t_Co=256
 
+filetype plugin indent on
