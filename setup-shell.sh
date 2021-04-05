@@ -21,6 +21,7 @@ if [[ "$(uname)" == "Darwin" ]]; then
     brew install tldr
     brew install ripgrep
     brew install tmux
+    brew install stow
 fi
 if [[ "$(uname)" == "Linux" ]]; then
     sudo apt install fd-find
