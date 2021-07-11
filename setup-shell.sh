@@ -14,6 +14,7 @@ mkdir -p $HOME/bin
 # TLDR - Convenient man pages
 # RG - Ripgrep, more convenient tway to greb
 # TMUX - Terminal multiplexer
+# STOW - Symlink farm manager for dotfiles
 # Note there are issues on pizero 32-bit arch. May need to manually install it.
 if [[ "$(uname)" == "Darwin" ]]; then
     brew install fd
@@ -21,6 +22,7 @@ if [[ "$(uname)" == "Darwin" ]]; then
     brew install tldr
     brew install ripgrep
     brew install tmux
+    brew install stow
 fi
 if [[ "$(uname)" == "Linux" ]]; then
     sudo apt install fd-find
@@ -29,6 +31,7 @@ if [[ "$(uname)" == "Linux" ]]; then
     sudo apt install ripgrep 
     sudo apt install tmux
     sudo apt install -y zsh powerline fonts-powerline
+    sudo apt install stow
 fi
 
 # FZF - fuzzy finder, great from the command line or from backware recursive search of history commands
