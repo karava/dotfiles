@@ -121,3 +121,6 @@ fi
 
 # On linux fzf auto adds this line
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
+# Initialise fasd, this creates the handy aliases for z and fasd_cd
+eval "$(fasd --init auto)"
