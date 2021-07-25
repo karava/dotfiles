@@ -7,7 +7,7 @@
 # Dont link DS_Store files
 find . -name ".DS_Store" -exec rm {} \;
 
-PROGRAMS=(alias git stow tmux vim zsh env)
+PROGRAMS=(alias git stow scripts tmux vim zsh env)
 OLD_DOTFILES="dotfile_bk_$(date -u +"%Y%m%d%H%M%S")"
 mkdir $OLD_DOTFILES
 
@@ -33,6 +33,7 @@ backup_if_exists ~/.zprofile
 backup_if_exists ~/.stow-global-ignore
 backup_if_exists ~/.vimrc
 backup_if_exists ~/.env
+backup_if_exists ~/bin
 
 mkdir -p ~/.vim/undodir
 
