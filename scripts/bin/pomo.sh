@@ -24,6 +24,9 @@ done
 
 echo "Hey Pomodoro, time's up!"
 say "hey pomodoro, times up, you have a minute left"
-sleep 60
+
+sleep 50
+~/bin/macAlerts.sh 'closing in 10seconds'
+sleep 10 
 osascript -e 'quit app "Safari"'
 

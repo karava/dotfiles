@@ -12,4 +12,5 @@ function error() {
 EOT
 }
 
-error "Not enough cheese!"
+# error "Not enough cheese!"
+error "$1"
