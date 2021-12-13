@@ -25,3 +25,5 @@
 	ui = true
 [diff-so-fancy]
 	markEmptyLines = false
+[init]
+	defaultBranch = main

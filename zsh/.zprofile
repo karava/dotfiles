@@ -42,13 +42,13 @@ alias counta_prod_usernames='aws cognito-idp list-users --user-pool-id us-east-2
 # alias into atyx digital ocean droplet
 alias atyxdroplet='ssh root@209.97.162.196'
 alias atyxdroplet-new='ssh root@178.128.51.138'
-alias kishdroplet='ssh root@kish.ai'
+# alias kishdroplet='ssh root@kish.ai'
 alias kishdroplet-old='ssh root@139.59.228.125'
 
 export LC_ALL=en_US.UTF-8
 export LANG=en_US.UTF-8
 
-if [[ "$(hostname)" == "MacBook-Pro-156.local" ]]; then
+if [[ "$(hostname)" == "MacBook-Pro-156" ]]; then
     . /Users/kishanarava/anaconda3/etc/profile.d/conda.sh
     conda activate
 fi

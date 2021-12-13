@@ -29,3 +29,6 @@ alias ytad="youtube-dl --extract-audio --audio-format mp3 --write-description --
 if [[ "$(uname)" == "Linux" ]]; then
     alias fd=fdfind
 fi
+
+# python 3.8
+alias python3.8=/usr/bin/python3
