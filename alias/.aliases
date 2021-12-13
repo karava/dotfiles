@@ -32,3 +32,9 @@ fi
 
 # python 3.8
 alias python3.8=/usr/bin/python3
+
+# SECRET ALIASES
+if [ -f ~/.secret-aliases ]; then
+    source ~/.secret-aliases
+fi
+
