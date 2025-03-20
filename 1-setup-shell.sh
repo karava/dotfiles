@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env bash 
 
 # enable shell mode to print executed commands to terminal
 set -x
@@ -17,6 +17,12 @@ mkdir -p $HOME/bin
 # STOW - Symlink farm manager for dotfiles
 # Note there are issues on pizero 32-bit arch. May need to manually install it.
 if [[ "$(uname)" == "Darwin" ]]; then
+    if [[ $(uname -m) == "arm64" ]]; then
+        eval "$(/opt/homebrew/bin/brew shellenv)"
+        echo "detected silicon"
+    else
+        eval "$(/usr/local/bin/brew shellenv)"
+    fi
     brew install fd
     brew install nnn
     brew install tldr
@@ -57,14 +63,18 @@ fi
 # ZSH
 #################### 
 
-chsh -s /usr/bin/zsh
-cp ~/.oh-my-zsh/templates/zshrc.zsh-template ~/.zshrc
-source ~/.zshrc
-
 # OH-MY-ZSH - Popular zsh shell configuration with nicetices
 set +x  # turn of verbosity so doesn't show entire code page
 if [[ ! -d $HOME/.oh-my-zsh ]]; then
     sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+fi
+
+if [[ $(uname -m) == "arm64" ]]; then
+  chsh -s /bin/zsh
+  echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zshrc
+else
+  chsh -s /usr/bin/zsh
+  echo 'eval "$(/usr/local/bin/brew shellenv)"' >> ~/.zshrc
 fi
 
 # auto-suggestions plugin

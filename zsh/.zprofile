@@ -1,71 +1,55 @@
-export PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/Users/kishanarava/documents/coding/mongodb/bin
-export PATH="$HOME/.fastlane/bin:$PATH"
-export PATH=$PATH:~/.local/bin
+# Standard PATH
+export PATH="$HOME/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:$HOME/.local/bin:$PATH"
 
-# added by Anaconda3 5.2.0 installer
-# export PATH="/Users/kishanarava/anaconda3/bin:$PATH"
-
-# # setup colours
-# LS_COLORS='rs=0:di=1;35:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:c$'
-# export LS_COLORS
-
-# PS1='\[\e[37;1m\]\u@\[\e[35m\]\W\[\e[0m\]$ '
-
+# Locale Fix (Avoid Encoding Issues)
 export LC_ALL=en_US.UTF-8
 export LANG=en_US.UTF-8
 
-if [[ "$(hostname)" == "MacBook-Pro-156" ]]; then
-    . /Users/kishanarava/anaconda3/etc/profile.d/conda.sh
-    conda activate
+# Homebrew Setup for Apple Silicon
+if [[ "$(uname -s)" == "Darwin" ]]; then
+    if [[ "$(uname -m)" == "arm64" ]]; then
+        eval "$(/opt/homebrew/bin/brew shellenv)"
+    elif [[ -x "/usr/local/bin/brew" ]]; then
+        eval "$(/usr/local/bin/brew shellenv)"
+    fi
 fi
 
-# Add Visual Studio Code (code)
-export PATH="$PATH:/Applications/Visual Studio Code.app/Contents/Resources/app/bin"
+# Python Paths (Avoid Hardcoding Versions)
+for py_ver in 3.13 3.12 3.11 3.10 3.9; do
+    if [[ -d "/Library/Frameworks/Python.framework/Versions/$py_ver/bin" ]]; then
+        export PATH="/Library/Frameworks/Python.framework/Versions/$py_ver/bin:$PATH"
+        break
+    fi
+done
 
-##############################
-## More productive aliases
-##############################
+# Java Setup
+if command -v /usr/libexec/java_home &> /dev/null; then
+    export JAVA_HOME=$(/usr/libexec/java_home -v 17)
+    export PATH="$JAVA_HOME/bin:$PATH"
+fi
+
+# FASD (Fast Directory Switching)
+if [[ -f "$HOME/bin/fasd" ]]; then
+    eval "$(fasd --init auto)"
+fi
+
+# FZF Auto-Completion (If Installed) On linux fzf auto adds this line
+if [[ -f "$HOME/.fzf.zsh" ]]; then
+    source "$HOME/.fzf.zsh"
+fi
+
+# VS Code Path so we can use 'code' to open files
+if [[ -d "/Applications/Visual Studio Code.app" ]]; then
+    export PATH="$PATH:/Applications/Visual Studio Code.app/Contents/Resources/app/bin"
+fi
+
+# Aliases
 alias django-runserver="python manage.py runserver"
-handson-ml() {
-    cd ~/code/myGitHub/handson-ml2
-    conda activate tf2
-    jupyter notebook > jupyter_log.txt 2>&1 &
-}
 
-############################
-## Extending jrnl functionality
-############################
-function log_question()
-{
-	echo $1
-	read
-	jrnl today: ${1}. $REPLY
-}
-
-function jrnl_questions() {
-	log_question 'What did I achieve today?'
-	log_question 'What did I make progress with?'
-}
-
-# Updates to allow updating of fastlane
-export GEM_HOME=~/.gems
-export PATH=$PATH:~/.gems/bin
-
-# Test if ~/.aliases exists and source it
-if [ -f ~/.aliases ]; then
-    source ~/.aliases
-fi
-
-# Environment setup
-if [ -f ~/.env ]; then
-    source ~/.env
-fi
-
-# enable fasd
-[ -f ~/bin/fasd ] && eval "$(fasd --init auto)"
-
-# On linux fzf auto adds this line
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+# Source Additional Configurations
+[[ -f "$HOME/.aliases" ]] && source "$HOME/.aliases"
+[[ -f "$HOME/.env" ]] && source "$HOME/.env"
 
 # Initialise fasd, this creates the handy aliases for z and fasd_cd
-eval "$(fasd --init auto)"
+export PATH="$PATH:/Users/kishanarava/development/flutter/bin"
+export PATH="/opt/homebrew/opt/ruby/bin:$PATH"

@@ -66,6 +66,8 @@ set noerrorbells visualbell t_vb=
 " sometimes be convenient.
 set mouse+=a
 
+set clipboard=unnamed
+
 " Spaces & Tabs
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 set tabstop=4       " number of visual spaces per TAB
