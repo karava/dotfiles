@@ -31,13 +31,18 @@ if [[ "$(uname)" == "Darwin" ]]; then
     brew install stow
 fi
 if [[ "$(uname)" == "Linux" ]]; then
-    sudo apt install fd-find
+    # Ubuntu distros have bash by default we need to install it and set it as the default shell
+    sudo apt install zsh
     sudo apt install nnn
     sudo apt install tldr
     sudo apt install ripgrep 
     sudo apt install tmux
     sudo apt install -y zsh powerline fonts-powerline
     sudo apt install stow
+    sudo chsh -s /usr/bin/zsh $(whoami)
+    sudo apt install fd-find
+    # On Linux need to link it otherwise will have to run fd with fdfind
+    sudo ln -s /usr/bin/fdfind /usr/local/bin/fd
 fi
 
 # FZF - fuzzy finder, great from the command line or from backware recursive search of history commands
@@ -69,13 +74,16 @@ if [[ ! -d $HOME/.oh-my-zsh ]]; then
     sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
 fi
 
-if [[ $(uname -m) == "arm64" ]]; then
-  chsh -s /bin/zsh
-  echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zshrc
-else
-  chsh -s /usr/bin/zsh
-  echo 'eval "$(/usr/local/bin/brew shellenv)"' >> ~/.zshrc
+if [[ "$(uname)" == "Darwin" ]]; then
+    if [[ $(uname -m) == "arm64" ]]; then
+        chsh -s /bin/zsh
+        echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zshrc
+    else
+        chsh -s /usr/bin/zsh
+        echo 'eval "$(/usr/local/bin/brew shellenv)"' >> ~/.zshrc
+    fi
 fi
+
 
 # auto-suggestions plugin
 git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
