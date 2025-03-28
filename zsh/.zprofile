@@ -43,6 +43,13 @@ if [[ -d "/Applications/Visual Studio Code.app" ]]; then
     export PATH="$PATH:/Applications/Visual Studio Code.app/Contents/Resources/app/bin"
 fi
 
+# Add flutter items to path
+# Android Emulator Path so we can use 'emulator' to launch Android emulators via the terminal
+if [[ -d "$HOME/Library/Android/sdk/emulator" ]]; then
+    export PATH="$PATH:$HOME/Library/Android/sdk/emulator"
+    export ANDROID_HOME="$HOME/Library/Android/sdk"
+fi
+
 # Aliases
 alias django-runserver="python manage.py runserver"
 

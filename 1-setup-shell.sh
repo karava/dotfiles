@@ -29,10 +29,12 @@ if [[ "$(uname)" == "Darwin" ]]; then
     brew install ripgrep
     brew install tmux
     brew install stow
+    brew install tree
 fi
 if [[ "$(uname)" == "Linux" ]]; then
     # Ubuntu distros have bash by default we need to install it and set it as the default shell
     sudo apt install zsh
+    sudo apt install tree
     sudo apt install nnn
     sudo apt install tldr
     sudo apt install ripgrep 
