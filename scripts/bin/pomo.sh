@@ -49,4 +49,4 @@ sleep 50
 ~/bin/macAlerts.sh 'closing in 10seconds'
 sleep 10 
 osascript -e 'quit app "Safari"'
-
+osascript -e 'quit app "Arc"' 
