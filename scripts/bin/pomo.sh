@@ -7,7 +7,7 @@ set -e
 
 if test -z "$1"
 then
-    echo "Usage: $( basename $0 ) <duration in minutes>" >&2
+    echo "Usage: $( basename $0 ) <duration in minutes> [--music]" >&2
     exit 1
 fi
 
