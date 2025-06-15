@@ -9,6 +9,12 @@
 	show = diff-so-fancy | less --tabs=4 -RFX
 [alias]
     graph = log --all --decorate --oneline --graph
+    bclean  = "!git branch --merged | grep -v '\\*\\|master\\|main\\|dev'"
+    bclean-run = "!git branch --merged | grep -v '\\*\\|master\\|main\\|dev' | xargs -r -n 1 git branch -d"
+    rprune  = "!git remote prune ${1:-origin} --dry-run"
+    rprune-run = "!git remote prune ${1:-origin}"
+    gone    = "!git branch -vv | awk '/: gone]/{print $1}'"
+    gone-run   = "!git branch -vv | awk '/: gone]/{print $1}' | xargs -r git branch -d"
 [color "diff-highlight"]
 	oldNormal = red bold
 	oldHighlight = red bold 52

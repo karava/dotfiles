@@ -59,4 +59,10 @@ alias django-runserver="python manage.py runserver"
 
 # Initialise fasd, this creates the handy aliases for z and fasd_cd
 export PATH="$PATH:/Users/kishanarava/development/flutter/bin"
+export PATH="$HOME/Library/Android/sdk/platform-tools:$PATH"
+
+
 export PATH="/opt/homebrew/opt/ruby/bin:$PATH"
+source /opt/homebrew/opt/chruby/share/chruby/chruby.sh
+source /opt/homebrew/opt/chruby/share/chruby/auto.sh
+chruby ruby-3.4.2
