@@ -13,6 +13,7 @@ on run
     tell application "Visual Studio Code" to activate
     tell application "Arc" to activate
     tell application "Pasta" to activate
+    tell application "Google Chrome" to activate
     -- tell application "ChatGPT" to activate
     -- tell application "TextEdit" to activate
     -- tell application "Notion" to activate
@@ -21,6 +22,7 @@ on run
     -- 3 ▸ Arrange on external monitor
     if externalDisplay then
         snapLeftHalf("Visual Studio Code")
+        snapRightHalf("Google Chrome")
     end if
     
     -- -- 4 ▸ Laptop screen layout (split ChatGPT / TextEdit)
@@ -37,3 +39,8 @@ on snapLeftHalf(appName)
     tell application appName to activate
     tell application "System Events" to key code 123 using {control down, option down}
 end snapLeftHalf
+
+on snapRightHalf(appName)
+    tell application appName to activate
+    tell application "System Events" to key code 124 using {control down, option down}
+end snapRightHalf
