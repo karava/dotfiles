@@ -1,5 +1,9 @@
 on run argv
     say "Hello, Kish"
+    tell application "System Events"
+        set userApps to (name of (processes where background only is false))
+    end tell
+    log userApps
 end run
 
 on hasExternalDisplay()
@@ -66,7 +70,7 @@ on closeAllUserApps(extraSkipList)
     if extraSkipList is missing value then set extraSkipList to {}
 
     -- Essentials macOS relies on; never touch these
-    set essentialApps to {"Finder", "Dock", "SystemUIServer", "ControlCenter", "loginwindow", "Terminal"}
+    set essentialApps to {"Finder", "Dock", "SystemUIServer", "ControlCenter", "loginwindow", "Terminal", "Music"}
     
     -- Merge lists
     set skipList to essentialApps & extraSkipList
