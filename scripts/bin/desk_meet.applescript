@@ -1,3 +1,5 @@
+-- Issues if arc browser is not already in full screen we can't move it's location
+
 script utils
     property u : load script ¬
         POSIX file (POSIX path of (path to home folder) & "dotfiles/scripts/bin/desk_utils.scpt")
@@ -8,7 +10,11 @@ on run
     
     utils's u's closeAllUserApps({"Finder","Electron","ChatGPT"})
     
-    tell application "Arc" to activate
+    tell application "Arc"
+        activate
+    end tell
+
+    leaveFullScreen("Arc")
 
     delay 0.5
     snapMaximize("Arc")
@@ -81,3 +87,20 @@ on onMainScreen(appName)
     
     return yPos < 100
 end onMainScreen
+
+on leaveFullScreen(appName)
+    log "Leaving full screen"
+    try
+        tell application "System Events" ¬
+            to tell application process appName ¬
+            to set value of attribute "AXFullScreen" of window 1 to false
+    on error
+        log "Error leaving full screen"
+        delay 2
+        tell application "System Events" to key code 20
+        tell application "System Events" to key code 20
+        -- tell application "System Events" to key code 53
+        tell application "System Events" to key code 27
+        tell application "System Events" to key code 27
+    end try -- ignore errors for apps with no AXFullScreen attribute
+end leaveFullScreen
