@@ -1,10 +1,10 @@
-on run argv
-    say "Hello, Kish"
-    tell application "System Events"
-        set userApps to (name of (processes where background only is false))
-    end tell
-    log userApps
-end run
+-- on run argv
+--     say "Hello, Kish"
+--     tell application "System Events"
+--         set userApps to (name of (processes where background only is false))
+--     end tell
+--     log userApps
+-- end run
 
 on hasExternalDisplay()
     set displayCount to do shell script ¬
@@ -67,6 +67,7 @@ on safeClose(theApp, autoClickDialogs)
 end safeClose
 
 on closeAllUserApps(extraSkipList)
+    log "---Closing the following apps---"
     if extraSkipList is missing value then set extraSkipList to {}
 
     -- Essentials macOS relies on; never touch these
@@ -93,6 +94,6 @@ on closeAllUserApps(extraSkipList)
             end if
         end if
     end repeat
-    
+    log "---Finished closing apps---"
     return survivors
 end closeAllUserApps

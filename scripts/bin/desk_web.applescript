@@ -7,32 +7,26 @@ on run
     set externalDisplay to utils's u's hasExternalDisplay()
     
     -- 1 ▸ Clean-up (if needed)
-    utils's u's closeAllUserApps({"Finder"})
+    utils's u's closeAllUserApps({"Finder","Electron","TextEdit"})
     
     -- 2 ▸ Launch apps
     tell application "Visual Studio Code" to activate
     tell application "Arc" to activate
     tell application "Pasta" to activate
     tell application "Google Chrome" to activate
-    -- tell application "ChatGPT" to activate
-    -- tell application "TextEdit" to activate
-    -- tell application "Notion" to activate
+    tell application "ChatGPT" to activate
+    tell application "TextEdit" to activate
+    tell application "Notion" to activate
     delay 1
     
     -- 3 ▸ Arrange on external monitor
     if externalDisplay then
         snapLeftHalf("Visual Studio Code")
         snapRightHalf("Google Chrome")
+    else
+        snapLeftHalf("Visual Studio Code")
+        snapRightHalf("Google Chrome")
     end if
-    
-    -- -- 4 ▸ Laptop screen layout (split ChatGPT / TextEdit)
-    -- utils's u's snapLeftHalf("ChatGPT")
-    -- utils's u's snapRightHalf("TextEdit")
-    
-    -- -- 5 ▸ Load Notion cheat-sheet
-    -- do shell script "open -g 'notion://www.notion.so/FE-Web-Cheat-123…'"
-    -- delay 0.4
-    -- tell application "Notion" to activate
 end run
 
 on snapLeftHalf(appName)
