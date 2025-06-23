@@ -10,13 +10,13 @@ on run
     utils's u's closeAllUserApps({"Finder"})
     
     -- 2 ▸ Launch apps
-    tell application "Notion" to activate
-    delay 1
+    -- tell application "Notion" to activate
+    -- delay 1
     
     -- 5 ▸ Load Notion cheat-sheet
     do shell script "open -g 'notion://www.notion.so/1744df0d5dc381b69683ee32813a7a82'"
-    delay 0.4
-    tell application "Notion" to activate
+    -- delay 0.4
+    -- tell application "Notion" to activate
 end run
 
 on snapLeftHalf(appName)
