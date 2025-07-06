@@ -12,3 +12,4 @@ fi
 # Route audio
 switchaudiosource -s "$NAME"
 echo "✅ audio routed to $NAME"
+say hi
