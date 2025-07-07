@@ -19,6 +19,7 @@ play_music=false
 task_str=""
 
 if [ "$1" == "--music" ]; then
+    ~/bin/cans.sh
     play_music=true
     shift
     if [ -n "$1" ] && [[ ! "$1" =~ ^-- ]]; then
