@@ -109,3 +109,12 @@ if [[ -n $PS1 ]]; then
     [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # Load nvm
     [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # Load completion
 fi
+
+# FVM
+export PATH="/Users/kishanarava/.fvm_flutter/bin:$PATH"
+
+## [Completion]
+## Completion scripts setup. Remove the following line to uninstall
+[[ -f /Users/kishanarava/.dart-cli-completion/zsh-config.zsh ]] && . /Users/kishanarava/.dart-cli-completion/zsh-config.zsh || true
+## [/Completion]
+

@@ -5,6 +5,50 @@ alias sl=ls
 ## Custom GIT aliases
 ##############################
 alias gl1='git log --oneline'
+# Release to CodeMagic with confirmation prompts
+function release-amuse() {
+    echo -n "Have you updated the version in pubspec.yaml? [y/N]: "
+    read CONFIRM_VERSION
+    case "$CONFIRM_VERSION" in
+        [yY][eE][sS]|[yY])
+            echo -n "Have you made any changes to models that require 'flutter pub run build_runner build'? [y/N]: "
+            read CONFIRM_BUILD
+            case "$CONFIRM_BUILD" in
+                [yY][eE][sS]|[yY])
+                    echo "⚠️  Please run 'flutter pub run build_runner build' first, then try again."
+                    return 1
+                    ;;
+                [nN][oO]|[nN])
+                    echo "Pushing main branch to origin..."
+                    git push origin main
+                    if [ $? -ne 0 ]; then
+                        echo "❌ Failed to push main branch"
+                        return 1
+                    fi
+                    echo "✅ Main branch pushed successfully!"
+
+                    echo "Creating release tag and pushing to trigger CodeMagic..."
+                    git tag -f release && git push origin :refs/tags/release && git push origin release
+                    if [ $? -eq 0 ]; then
+                        echo "✅ Release tag pushed successfully!"
+                        echo "🚀 Release process complete! CodeMagic build should start soon."
+                    else
+                        echo "❌ Failed to push release tag"
+                        return 1
+                    fi
+                    ;;
+                *)
+                    echo "Please answer yes or no."
+                    return 1
+                    ;;
+            esac
+            ;;
+        *)
+            echo "Aborting release. Please update the version in pubspec.yaml first."
+            return 1
+            ;;
+    esac
+}
 
 # Save a lot of typing for common commands
 alias v="vim"

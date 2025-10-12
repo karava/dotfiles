@@ -11,6 +11,8 @@
     graph = log --all --decorate --oneline --graph
     bclean  = "!git branch --merged | grep -v '\\*\\|master\\|main\\|dev'"
     bclean-run = "!git branch --merged | grep -v '\\*\\|master\\|main\\|dev' | xargs -r -n 1 git branch -d"
+    rbclean = "!git branch -r --merged | grep -v 'HEAD\\|main\\|master\\|dev' | sed 's/origin\\///'"
+    rbclean-run = "!git branch -r --merged | grep -v 'HEAD\\|main\\|master\\|dev' | sed 's/origin\\///' | xargs -r -n 1 git push origin --delete"
     rprune  = "!git remote prune ${1:-origin} --dry-run"
     rprune-run = "!git remote prune ${1:-origin}"
     gone    = "!git branch -vv | awk '/: gone]/{print $1}'"

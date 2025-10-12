@@ -1,0 +1,30 @@
+#!/bin/zsh
+
+# Notion Journal Opener
+# Opens your Journal database in Notion
+
+# Configuration - Your Journal database URL
+JOURNAL_DATABASE_URL="https://www.notion.so/1744df0d5dc381b69683ee32813a7a82?v=1744df0d5dc3811ebd36000c5c54feb1"
+
+# Check if the URL is configured
+if [[ "$JOURNAL_DATABASE_URL" == "YOUR_JOURNAL_DATABASE_URL_HERE" ]]; then
+    echo "⚠️  Please configure your Journal database URL first!"
+    echo ""
+    echo "Steps to set up:"
+    echo "1. Open your Journal database in Notion"
+    echo "2. Click Share → Copy link"
+    echo "3. Edit this script: $0"
+    echo "4. Replace YOUR_JOURNAL_DATABASE_URL_HERE with your actual URL"
+    exit 1
+fi
+
+# Get today's date for the message
+TODAY=$(date "+%B %d, %Y")
+
+echo "Opening Journal in Notion..."
+
+# Open the Journal database URL directly in Notion desktop app
+# This avoids Arc browser Space issues
+open -a Notion "$JOURNAL_DATABASE_URL"
+
+echo "✅ Journal opened for $TODAY"

@@ -66,3 +66,9 @@ export PATH="/opt/homebrew/opt/ruby/bin:$PATH"
 source /opt/homebrew/opt/chruby/share/chruby/chruby.sh
 source /opt/homebrew/opt/chruby/share/chruby/auto.sh
 chruby ruby-3.4.2
+
+# Mysql-client
+export PATH="/opt/homebrew/opt/mysql-client/bin:$PATH"
+export LDFLAGS="-L/opt/homebrew/opt/mysql-client/lib $LDFLAGS"
+export CPPFLAGS="-I/opt/homebrew/opt/mysql-client/include $CPPFLAGS"
+export PKG_CONFIG_PATH="/opt/homebrew/opt/mysql-client/lib/pkgconfig:$PKG_CONFIG_PATH"
