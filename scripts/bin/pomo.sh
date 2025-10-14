@@ -148,6 +148,21 @@ if [ -n "$task_str" ]; then
     jrnl timesheet "$task_str ($elapsed_minutes minutes spent)"
 fi
 
+# Log session to statistics file
+log_file="$HOME/.pomo_log"
+timestamp="$(date '+%Y-%m-%d %H:%M')"
+if [ -n "$task_str" ]; then
+    echo "$timestamp: $task_str ($elapsed_minutes min)" >> "$log_file"
+else
+    echo "$timestamp: Pomodoro session ($elapsed_minutes min)" >> "$log_file"
+fi
+
+# Show daily statistics
+today_count=$(grep "^$(date '+%Y-%m-%d')" "$log_file" 2>/dev/null | wc -l | tr -d ' ')
+today_minutes=$(grep "^$(date '+%Y-%m-%d')" "$log_file" 2>/dev/null | sed -E 's/.*\(([0-9]+) min\).*/\1/' | awk '{sum+=$1} END {print sum+0}')
+echo ""
+echo "📊 Today's Stats: $today_count sessions, $today_minutes minutes total"
+
 # Only run closing flow if the timer wasn't stopped early.
 if [ "$early_completion" == false ]; then
     echo "Hey Kish, time's up!"
