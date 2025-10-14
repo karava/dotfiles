@@ -85,15 +85,27 @@ notify() {
 
 # Define the progress_bar function
 progress_bar() {
-    local current=$1
-    local total=$2
+    local current_seconds=$1
+    local total_seconds=$2
     local width=30
-    local percent=$((current * 100 / total))
-    local filled=$((current * width / total))
-    printf "\r["
+    local percent=$((current_seconds * 100 / total_seconds))
+    local filled=$((current_seconds * width / total_seconds))
+    local remaining_seconds=$((total_seconds - current_seconds))
+
+    # Format time as MM:SS
+    local current_mm=$((current_seconds / 60))
+    local current_ss=$((current_seconds % 60))
+    local total_mm=$((total_seconds / 60))
+    local total_ss=$((total_seconds % 60))
+    local remaining_mm=$((remaining_seconds / 60))
+    local remaining_ss=$((remaining_seconds % 60))
+
+    printf "\r⏱️  ["
     printf "%${filled}s" | tr ' ' '█'
     printf "%$((width - filled))s" | tr ' ' '░'
-    printf "] %3d%% (%d/%d min)" $percent $current $total
+    printf "] %3d%% " $percent
+    printf "%02d:%02d / %02d:%02d " $current_mm $current_ss $total_mm $total_ss
+    printf "(-%02d:%02d)" $remaining_mm $remaining_ss
 }
 
 echo "Starting a Pomodoro timer of $minutes minutes."
@@ -111,17 +123,19 @@ if $play_music; then
 fi
 
 early_completion=false
-i=0
-while test $i -lt $minutes
+total_seconds=$((minutes * 60))
+elapsed_seconds=0
+
+while test $elapsed_seconds -lt $total_seconds
 do
-    progress_bar $i $minutes
-    read -t 60 -n 1 -p " Press 'c' to complete, 'q' to quit: " input || true
+    progress_bar $elapsed_seconds $total_seconds
+    read -t 1 -n 1 -p " Press 'c' to complete, 'q' to quit: " input || true
     if [ "$input" == "c" ]; then
         early_completion=true
-        remaining=$((minutes - i))
+        remaining_minutes=$(((total_seconds - elapsed_seconds) / 60))
         echo ""  # newline after progress bar
-        echo "Task completed $remaining minutes early!"
-        notify "Task completed $remaining minutes early! 🎉" "Pomodoro Complete"
+        echo "Task completed $remaining_minutes minutes early!"
+        notify "Task completed $remaining_minutes minutes early! 🎉" "Pomodoro Complete"
         break
     elif [ "$input" == "q" ]; then
         echo ""  # newline after progress bar
@@ -129,14 +143,14 @@ do
         stop_music
         exit 0
     fi
-    i=$(( $i + 1))
+    elapsed_seconds=$(( elapsed_seconds + 1))
 done
 
 # Show final progress
-progress_bar $i $minutes
+progress_bar $elapsed_seconds $total_seconds
 echo ""  # newline after final progress bar
 
-elapsed_minutes=$i
+elapsed_minutes=$((elapsed_seconds / 60))
 
 # If music flag is set, stop the music at the end.
 if $play_music; then
