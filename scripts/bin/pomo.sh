@@ -76,6 +76,13 @@ stop_music() {
     osascript -e 'tell application "Music" to pause'
 }
 
+# Define the notify function for macOS notifications
+notify() {
+    local message="$1"
+    local title="${2:-Pomodoro Timer}"
+    osascript -e "display notification \"$message\" with title \"$title\" sound name \"Glass\""
+}
+
 # Define the progress_bar function
 progress_bar() {
     local current=$1
@@ -90,6 +97,7 @@ progress_bar() {
 }
 
 echo "Starting a Pomodoro timer of $minutes minutes."
+notify "Starting $minutes minute timer" "🍅 Pomodoro"
 
 # If music flag is set, start playing work music.
 if $play_music; then
@@ -113,6 +121,7 @@ do
         remaining=$((minutes - i))
         echo ""  # newline after progress bar
         echo "Task completed $remaining minutes early!"
+        notify "Task completed $remaining minutes early! 🎉" "Pomodoro Complete"
         break
     elif [ "$input" == "q" ]; then
         echo ""  # newline after progress bar
@@ -142,6 +151,7 @@ fi
 # Only run closing flow if the timer wasn't stopped early.
 if [ "$early_completion" == false ]; then
     echo "Hey Kish, time's up!"
+    notify "Timer complete! Take a break 🍅" "Pomodoro Finished"
     say "${alert_sound:-hey Kish, times up, you have a minute left}"
     sleep 50
     if [ -f ~/bin/macAlerts.sh ]; then
