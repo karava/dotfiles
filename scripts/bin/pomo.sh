@@ -45,7 +45,7 @@ stop_music() {
 
 echo "Starting a Pomodoro timer of $minutes minutes."
 
-# If music flag is set, start palying work music.
+# If music flag is set, start playing work music.
 if $play_music; then
     if [ "$music_type" = "reading" ]; then
         echo "Starting reading music..."
