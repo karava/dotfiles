@@ -43,6 +43,19 @@ stop_music() {
     osascript -e 'tell application "Music" to pause'
 }
 
+# Define the progress_bar function
+progress_bar() {
+    local current=$1
+    local total=$2
+    local width=30
+    local percent=$((current * 100 / total))
+    local filled=$((current * width / total))
+    printf "\r["
+    printf "%${filled}s" | tr ' ' '█'
+    printf "%$((width - filled))s" | tr ' ' '░'
+    printf "] %3d%% (%d/%d min)" $percent $current $total
+}
+
 echo "Starting a Pomodoro timer of $minutes minutes."
 
 # If music flag is set, start playing work music.
@@ -60,21 +73,26 @@ early_completion=false
 i=0
 while test $i -lt $minutes
 do
-    read -t 60 -n 1 -p "Press 'c' to mark task completed early, or 'q' to quit: " input || true
-    echo # newline after the prompt
+    progress_bar $i $minutes
+    read -t 60 -n 1 -p " Press 'c' to complete, 'q' to quit: " input || true
     if [ "$input" == "c" ]; then
         early_completion=true
         remaining=$((minutes - i))
+        echo ""  # newline after progress bar
         echo "Task completed $remaining minutes early!"
         break
     elif [ "$input" == "q" ]; then
+        echo ""  # newline after progress bar
         echo "Exiting..."
         stop_music
         exit 0
     fi
     i=$(( $i + 1))
-    echo $i minutes elapsed
 done
+
+# Show final progress
+progress_bar $i $minutes
+echo ""  # newline after final progress bar
 
 elapsed_minutes=$i
 
