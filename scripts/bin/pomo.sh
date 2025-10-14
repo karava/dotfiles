@@ -18,7 +18,14 @@ case "$1" in
     work) minutes=25 ;;
     break) minutes=5 ;;
     long) minutes=15 ;;
-    *) minutes=$1 ;;
+    *)
+        # Validate that input is a positive integer
+        if ! [[ "$1" =~ ^[0-9]+$ ]] || [ "$1" -eq 0 ]; then
+            echo "Error: Duration must be a positive integer (minutes)" >&2
+            exit 1
+        fi
+        minutes=$1
+        ;;
 esac
 shift
 
@@ -88,6 +95,12 @@ progress_bar() {
     local current_seconds=$1
     local total_seconds=$2
     local width=30
+
+    # Avoid division by zero
+    if [ "$total_seconds" -eq 0 ]; then
+        return
+    fi
+
     local percent=$((current_seconds * 100 / total_seconds))
     local filled=$((current_seconds * width / total_seconds))
     local remaining_seconds=$((total_seconds - current_seconds))
