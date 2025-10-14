@@ -1,41 +1,74 @@
 #!/bin/bash
 
 # A Pomodoro timer for the macOS terminal.
-# Usage: ./pomo.sh <duration in minutes> [--music] [--task "task description"]
+# Usage: ./pomo.sh <duration|preset> [--music [type]] [--task "task description"] [--sound "custom message"]
+# Presets: work (25 min), break (5 min), long (15 min)
 
 set -e
 
 if test -z "$1"
 then
-    echo "Usage: $( basename $0 ) <duration in minutes> [--music] [--task \"task description\"]" >&2
+    echo "Usage: $( basename $0 ) <minutes|preset> [--music [type]] [--task \"description\"] [--sound \"message\"]" >&2
+    echo "Presets: work (25 min), break (5 min), long (15 min)" >&2
     exit 1
 fi
 
-minutes=$1
+# Handle presets or custom duration
+case "$1" in
+    work) minutes=25 ;;
+    break) minutes=5 ;;
+    long) minutes=15 ;;
+    *) minutes=$1 ;;
+esac
 shift
 
-# Check for the --music flag
+# Initialize variables
 play_music=false
+music_type=""
 task_str=""
+alert_sound=""
 
-if [ "$1" == "--music" ]; then
-    ~/bin/cans.sh
-    play_music=true
-    shift
-    if [ -n "$1" ] && [[ ! "$1" =~ ^-- ]]; then
-        music_type="$1"
-        shift
-    fi
-fi
-
-if [ "$1" == "--task" ]; then
-    shift
-    if [ -z "$1" ]; then
-        echo "Error: --task flag requires a string argument." >&2
-        exit 1
-    fi
-    task_str="$1"
-fi
+# Parse arguments flexibly
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --music)
+            # Try to run cans.sh if it exists
+            if [ -f ~/bin/cans.sh ]; then
+                ~/bin/cans.sh
+            else
+                echo "Warning: ~/bin/cans.sh not found, skipping headphone setup" >&2
+            fi
+            play_music=true
+            shift
+            if [[ -n "$1" && ! "$1" =~ ^-- ]]; then
+                music_type="$1"
+                shift
+            fi
+            ;;
+        --task)
+            shift
+            if [[ -z "$1" ]]; then
+                echo "Error: --task requires a task description." >&2
+                exit 1
+            fi
+            task_str="$1"
+            shift
+            ;;
+        --sound)
+            shift
+            if [[ -z "$1" ]]; then
+                echo "Error: --sound requires a message." >&2
+                exit 1
+            fi
+            alert_sound="$1"
+            shift
+            ;;
+        *)
+            echo "Unknown option: $1" >&2
+            shift
+            ;;
+    esac
+done
 
 # Define the stop_music function
 stop_music() {
@@ -109,10 +142,14 @@ fi
 # Only run closing flow if the timer wasn't stopped early.
 if [ "$early_completion" == false ]; then
     echo "Hey Kish, time's up!"
-    say "hey Kish, times up, you have a minute left"
+    say "${alert_sound:-hey Kish, times up, you have a minute left}"
     sleep 50
-    ~/bin/macAlerts.sh 'closing in 10seconds'
-    sleep 10 
+    if [ -f ~/bin/macAlerts.sh ]; then
+        ~/bin/macAlerts.sh 'closing in 10seconds'
+    else
+        echo "Warning: ~/bin/macAlerts.sh not found" >&2
+    fi
+    sleep 10
     osascript -e 'quit app "Safari"'
     osascript -e 'quit app "Arc"'
     osascript -e 'quit app "Notion"'
