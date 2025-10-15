@@ -194,15 +194,7 @@ echo "📊 Today's Stats: $today_count sessions, $today_minutes minutes total"
 if [ "$early_completion" == false ]; then
     echo "Hey Kish, time's up!"
     notify "Timer complete! Take a break 🍅" "Pomodoro Finished"
-    say "${alert_sound:-hey Kish, times up, you have a minute left}"
-    sleep 50
-    if [ -f ~/bin/macAlerts.sh ]; then
-        ~/bin/macAlerts.sh 'closing in 10seconds'
-    else
-        echo "Warning: ~/bin/macAlerts.sh not found" >&2
-    fi
-    sleep 10
-    osascript -e 'quit app "Safari"'
-    osascript -e 'quit app "Arc"'
-    osascript -e 'quit app "Notion"'
+    say "${alert_sound:-hey Kish, times up, take a break}"
+    echo ""
+    echo "🍅 Remember to take a break and stretch!"
 fi
