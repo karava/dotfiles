@@ -1,21 +1,26 @@
 #!/bin/bash
 
 # A Pomodoro timer for the macOS terminal.
-# Usage: ./pomo.sh <duration|preset> [--music [type]] [--task "task description"] [--sound "custom message"]
-# Presets: work (25 min), break (5 min), long (15 min)
+# Usage: ./pomo.sh <duration|preset> [--music [type]] [--no-music] [--task "description"] [--sound "message"]
+# Presets: work (25 min + music), break (5 min), long (15 min)
+# Note: 'work' preset automatically starts Work Music unless --no-music is specified
 
 set -e
 
 if test -z "$1"
 then
-    echo "Usage: $( basename $0 ) <minutes|preset> [--music [type]] [--task \"description\"] [--sound \"message\"]" >&2
-    echo "Presets: work (25 min), break (5 min), long (15 min)" >&2
+    echo "Usage: $( basename $0 ) <minutes|preset> [--music [type]] [--no-music] [--task \"description\"] [--sound \"message\"]" >&2
+    echo "Presets: work (25 min + music), break (5 min), long (15 min)" >&2
     exit 1
 fi
 
 # Handle presets or custom duration
+auto_music=false
 case "$1" in
-    work) minutes=25 ;;
+    work)
+        minutes=25
+        auto_music=true  # Work sessions get music by default
+        ;;
     break) minutes=5 ;;
     long) minutes=15 ;;
     *)
@@ -30,7 +35,7 @@ esac
 shift
 
 # Initialize variables
-play_music=false
+play_music=$auto_music  # Start with preset default
 music_type=""
 task_str=""
 alert_sound=""
@@ -38,13 +43,14 @@ alert_sound=""
 # Parse arguments flexibly
 while [[ $# -gt 0 ]]; do
     case $1 in
+        --no-music)
+            # Override any automatic music settings
+            play_music=false
+            auto_music=false
+            shift
+            ;;
         --music)
-            # Try to run cans.sh if it exists
-            if [ -f ~/bin/cans.sh ]; then
-                ~/bin/cans.sh
-            else
-                echo "Warning: ~/bin/cans.sh not found, skipping headphone setup" >&2
-            fi
+            # Explicitly enable music
             play_music=true
             shift
             if [[ -n "$1" && ! "$1" =~ ^-- ]]; then
@@ -124,8 +130,15 @@ progress_bar() {
 echo "Starting a Pomodoro timer of $minutes minutes."
 notify "Starting $minutes minute timer" "🍅 Pomodoro"
 
-# If music flag is set, start playing work music.
+# If music flag is set, setup headphones and start playing work music.
 if $play_music; then
+    # Try to run cans.sh if it exists and we haven't already
+    if [ -f ~/bin/cans.sh ]; then
+        ~/bin/cans.sh
+    else
+        echo "Warning: ~/bin/cans.sh not found, skipping headphone setup" >&2
+    fi
+
     if [ "$music_type" = "reading" ]; then
         echo "Starting reading music..."
         osascript -e 'tell application "Music" to play playlist "Reading"'
@@ -193,8 +206,8 @@ echo "📊 Today's Stats: $today_count sessions, $today_minutes minutes total"
 # Only run closing flow if the timer wasn't stopped early.
 if [ "$early_completion" == false ]; then
     echo "Hey Kish, time's up!"
-    notify "Timer complete! Take a break 🍅" "Pomodoro Finished"
-    say "${alert_sound:-hey Kish, times up, take a break}"
+    notify "Timer complete! Take a break and stretch 🍅" "Pomodoro Finished"
+    say "${alert_sound:-hey Kish, times up, take a break and stretch}"
     echo ""
     echo "🍅 Remember to take a break and stretch!"
 fi
