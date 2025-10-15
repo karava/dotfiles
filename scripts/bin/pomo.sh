@@ -1,16 +1,18 @@
 #!/bin/bash
 
 # A Pomodoro timer for the macOS terminal.
-# Usage: ./pomo.sh <duration|preset> [--music [type]] [--no-music] [--task "description"] [--sound "message"]
+# Usage: ./pomo.sh <duration|preset> [options]
 # Presets: work (25 min + music), break (5 min), long (15 min)
-# Note: 'work' preset automatically starts Work Music unless --no-music is specified
+# Options: --music [type], --no-music, --task "description", --sound "message", --skip-task
+# Note: Will prompt for task description if not provided (use --skip-task to bypass)
 
 set -e
 
 if test -z "$1"
 then
-    echo "Usage: $( basename $0 ) <minutes|preset> [--music [type]] [--no-music] [--task \"description\"] [--sound \"message\"]" >&2
+    echo "Usage: $( basename $0 ) <minutes|preset> [options]" >&2
     echo "Presets: work (25 min + music), break (5 min), long (15 min)" >&2
+    echo "Options: --task \"desc\", --music [type], --no-music, --sound \"msg\", --skip-task" >&2
     exit 1
 fi
 
@@ -39,6 +41,7 @@ play_music=$auto_music  # Start with preset default
 music_type=""
 task_str=""
 alert_sound=""
+skip_task=false
 
 # Parse arguments flexibly
 while [[ $# -gt 0 ]]; do
@@ -76,12 +79,25 @@ while [[ $# -gt 0 ]]; do
             alert_sound="$1"
             shift
             ;;
+        --skip-task)
+            skip_task=true
+            shift
+            ;;
         *)
             echo "Unknown option: $1" >&2
             shift
             ;;
     esac
 done
+
+# If no task was specified, prompt for it (unless skipped)
+if [ -z "$task_str" ] && [ "$skip_task" = false ]; then
+    echo "What are you working on? (Press Enter to skip)"
+    read -r -p "Task: " task_input
+    if [ -n "$task_input" ]; then
+        task_str="$task_input"
+    fi
+fi
 
 # Define the stop_music function
 stop_music() {
