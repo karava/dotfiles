@@ -93,6 +93,7 @@ done
 # If no task was specified, prompt for it (unless skipped)
 if [ -z "$task_str" ] && [ "$skip_task" = false ]; then
     echo "What are you working on? (Press Enter to skip)"
+    echo "Tip: Use @tags for projects (e.g., 'Review PRs @counta' or 'Bug fix @amus')"
     read -r -p "Task: " task_input
     if [ -n "$task_input" ]; then
         task_str="$task_input"

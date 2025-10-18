@@ -161,56 +161,47 @@ done
 
 echo ""
 
-# Project Breakdown from jrnl
+# Project Breakdown from jrnl tags
 echo -e "${PURPLE}${BOLD}🎯 PROJECT FOCUS${NC}"
 echo -e "${PURPLE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 
-# Get all project tags and their times
-typeset -A project_times
-typeset -A project_counts
-
-# Get entries from jrnl for the time period
+# Get tags from jrnl for the time period
 if [ "$week_arg" = "last" ]; then
-    entries=$(jrnl timesheet -from "$start_date" -to "$end_date" 2>/dev/null || echo "")
+    tags_output=$(jrnl timesheet -from "$start_date" -to "$end_date" --tags 2>/dev/null | grep "@" || echo "")
 else
-    entries=$(jrnl timesheet -from "$start_date" 2>/dev/null || echo "")
+    tags_output=$(jrnl timesheet -from "$start_date" --tags 2>/dev/null | grep "@" || echo "")
 fi
 
-if [ -n "$entries" ]; then
-    # Extract projects and times
-    while IFS= read -r line; do
-        # Look for entries with brackets (projects)
-        if [[ "$line" =~ \[([^\]]+)\].*\(([0-9]+)\ minutes\ spent\) ]]; then
-            project="${BASH_REMATCH[1]}"
-            minutes="${BASH_REMATCH[2]}"
+if [ -n "$tags_output" ]; then
+    # Parse and display top 5 tags
+    echo "$tags_output" | head -5 | while IFS= read -r line; do
+        if [[ "$line" =~ @([^[:space:]]+)[[:space:]]*:[[:space:]]*([0-9]+) ]]; then
+            tag="${match[1]}"
+            count="${match[2]}"
 
-            # Add to project totals
-            if [ -n "${project_times[$project]}" ]; then
-                project_times[$project]=$((project_times[$project] + minutes))
-                project_counts[$project]=$((project_counts[$project] + 1))
+            # Get total time for this tag
+            if [ "$week_arg" = "last" ]; then
+                tag_mins=$(jrnl timesheet -from "$start_date" -to "$end_date" -contains "@${tag}" 2>/dev/null | \
+                    grep -E '\([0-9]+ minutes spent\)' | \
+                    sed -E 's/.*\(([0-9]+) minutes spent\).*/\1/' | \
+                    awk '{sum+=$1} END {print sum+0}')
             else
-                project_times[$project]=$minutes
-                project_counts[$project]=1
+                tag_mins=$(jrnl timesheet -from "$start_date" -contains "@${tag}" 2>/dev/null | \
+                    grep -E '\([0-9]+ minutes spent\)' | \
+                    sed -E 's/.*\(([0-9]+) minutes spent\).*/\1/' | \
+                    awk '{sum+=$1} END {print sum+0}')
+            fi
+
+            if [ "$tag_mins" -gt 0 ] && [ "$total_mins" -gt 0 ]; then
+                percentage=$((tag_mins * 100 / total_mins))
+                printf "  ${BOLD}@%-12s${NC} %s (${CYAN}%d sessions, %d%%${NC})\n" \
+                    "$tag" "$(format_time $tag_mins)" "$count" "$percentage"
             fi
         fi
-    done <<< "$entries"
-
-    # Sort projects by time and display
-    if [ ${#project_times[@]} -gt 0 ]; then
-        for project in $(for p in "${!project_times[@]}"; do echo "${project_times[$p]}:$p"; done | sort -rn | head -5 | cut -d: -f2-); do
-            mins=${project_times[$project]}
-            count=${project_counts[$project]}
-            percentage=$((mins * 100 / total_mins))
-
-            printf "  ${BOLD}[%-10s]${NC} " "$project"
-            printf "%s " "$(format_time $mins)"
-            printf "(${CYAN}%d sessions, %d%%${NC})\n" "$count" "$percentage"
-        done
-    else
-        echo "  No tagged projects found"
-    fi
+    done
 else
-    echo "  No project data available"
+    echo "  No tagged projects found"
+    echo "  Tip: Use @tags when logging tasks (e.g., 'Bug fix @amus')"
 fi
 
 echo ""
