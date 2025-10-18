@@ -277,7 +277,9 @@ for date in ${(k)daily_mins}; do
 done
 
 if [ -n "$most_productive_day" ] && [ "$most_productive_mins" -gt 0 ]; then
-    day_name=$(date -jf '%Y-%m-%d' "$most_productive_day" +'%A')
+    # Remove any quotes from the date string
+    clean_date="${most_productive_day//\"/}"
+    day_name=$(date -jf "%Y-%m-%d" "${clean_date}" "+%A" 2>/dev/null || echo "$clean_date")
     echo ""
     printf "  Most Productive: ${BOLD}%s${NC} with %s\n" "$day_name" "$(format_time $most_productive_mins)"
 fi
