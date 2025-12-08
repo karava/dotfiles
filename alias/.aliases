@@ -82,3 +82,5 @@ if [ -f ~/.secret-aliases ]; then
     source ~/.secret-aliases
 fi
 
+# For Flutter dev
+alias pod-clean="cd ios && rm -rf Pods Podfile.lock && pod install && cd .."

@@ -27,4 +27,7 @@ echo "Opening Journal in Notion..."
 # This avoids Arc browser Space issues
 open -a Notion "$JOURNAL_DATABASE_URL"
 
+# Bring Notion to the foreground
+osascript -e 'tell application "Notion" to activate'
+
 echo "✅ Journal opened for $TODAY"
