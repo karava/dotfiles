@@ -96,3 +96,4 @@ set background=dark
 set t_Co=256
 
 filetype plugin indent on
+set redrawtime=10000

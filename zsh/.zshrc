@@ -1,6 +1,3 @@
-# If you come from bash you might have to change your $PATH.
-# export PATH=$HOME/bin:/usr/local/bin:$PATH
-
 # Path to your oh-my-zsh installation.
 export ZSH=$HOME/.oh-my-zsh
 
@@ -103,18 +100,18 @@ source $ZSH/oh-my-zsh.sh
 
 # My additions
 
-# Load NVM only in interactive shells
+# Load NVM (Node Version Manager) only in interactive shells
 if [[ -n $PS1 ]]; then
-    export NVM_DIR="$HOME/.nvm"
+    export NVM_DIR="/Volumes/DevData/tools/nvm"
     [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # Load nvm
     [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # Load completion
 fi
 
 # FVM
-export PATH="/Users/kishanarava/.fvm_flutter/bin:$PATH"
+export PATH="$HOME/.fvm_flutter/bin:$PATH"
 
 ## [Completion]
 ## Completion scripts setup. Remove the following line to uninstall
-[[ -f /Users/kishanarava/.dart-cli-completion/zsh-config.zsh ]] && . /Users/kishanarava/.dart-cli-completion/zsh-config.zsh || true
+[[ -f "$HOME/.dart-cli-completion/zsh-config.zsh" ]] && . "$HOME/.dart-cli-completion/zsh-config.zsh" || true
 ## [/Completion]
 

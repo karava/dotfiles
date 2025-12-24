@@ -10,6 +10,10 @@ Custom configuration files for:
 
 There is also a script for easy simlinking the dotfiles
 
+fasd and diff-so-fancy are vendored in scripts/bin and linked to ~/bin by 2-setup-dotfiles.sh.
+
+fzf is also installed for great auto-completions
+
 Know issues
 - Alias for fasd i.e. z and zz don't seem to be in the aliases file
 

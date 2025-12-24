@@ -17,20 +17,23 @@ mkdir -p $HOME/bin
 # STOW - Symlink farm manager for dotfiles
 # Note there are issues on pizero 32-bit arch. May need to manually install it.
 if [[ "$(uname)" == "Darwin" ]]; then
-    if [[ $(uname -m) == "arm64" ]]; then
-        eval "$(/opt/homebrew/bin/brew shellenv)"
-        echo "detected silicon"
-    else
-        eval "$(/usr/local/bin/brew shellenv)"
+#    if [[ $(uname -m) == "arm64" ]]; then
+#        eval "$(/opt/homebrew/bin/brew shellenv)"
+#        echo "detected silicon"
+#    else
+#        eval "$(/usr/local/bin/brew shellenv)"
+#    fi
+    if ! command -v brew >/dev/null 2>&1; then
+        echo "Homebrew not found. Install Homebrew first, then re-run 1-setup-shell.sh."
+        exit 1
     fi
-    brew install fd
-    brew install nnn
-    brew install tldr
-    brew install ripgrep
-    brew install tmux
-    brew install stow
-    brew install tree
+    BREW_PREFIX="$(brew --prefix)"
+    eval "$("$BREW_PREFIX/bin/brew" shellenv)"
+    echo "Detected macOS ($(uname -m)), using Homebrew at $BREW_PREFIX"
+    
+    brew install fd nnn tldr ripgrep tmux stow tree
 fi
+
 if [[ "$(uname)" == "Linux" ]]; then
     # Ubuntu distros have bash by default we need to install it and set it as the default shell
     sudo apt install zsh
@@ -53,18 +56,6 @@ if [[ ! -f $HOME/.fzf/bin/fzf ]]; then
     yes | $HOME/.fzf/install
 fi
 
-# FASD - quick access to directories throuh 'z' shortcut accessing frecent directories
-if [[ ! -f $HOME/bin/fasd ]]; then
-    git clone https://github.com/clvv/fasd.git /tmp/fasd
-    cd /tmp/fasd
-    PREFIX=$HOME make install
-    cd -
-fi
-
-# DIFF-SO-FANCY
-if [[ ! -f $HOME/bin/diff-so-fancy ]]; then
-    curl -o $HOME/bin/diff-so-fancy https://raw.githubusercontent.com/so-fancy/diff-so-fancy/master/third_party/build_fatpack/diff-so-fancy
-fi
 
 ####################
 # ZSH
@@ -77,12 +68,14 @@ if [[ ! -d $HOME/.oh-my-zsh ]]; then
 fi
 
 if [[ "$(uname)" == "Darwin" ]]; then
+    BREW_PREFIX="$(brew --prefix)"
     if [[ $(uname -m) == "arm64" ]]; then
         chsh -s /bin/zsh
-        echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zshrc
     else
         chsh -s /usr/bin/zsh
-        echo 'eval "$(/usr/local/bin/brew shellenv)"' >> ~/.zshrc
+    fi
+    if ! grep -q 'brew shellenv' "$HOME/.zshrc" 2>/dev/null; then
+        echo 'eval "$($BREW_PREFIX/bin/brew shellenv)"' >> ~/.zshrc
     fi
 fi
 

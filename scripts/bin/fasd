@@ -27,6 +27,8 @@
 # TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+# FASD - quick access to directories through 'z' shortcut accessing frecent directories
+
 fasd() {
 
   # make zsh do word splitting inside this function
