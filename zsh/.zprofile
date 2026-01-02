@@ -5,7 +5,6 @@ export PATH="$HOME/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:$HOME/.local
 export LC_ALL=en_US.UTF-8
 export LANG=en_US.UTF-8
 
-
 # ─────────────────────────────────────────────────────────────
 # Homebrew setup (DevData first, then fallbacks)
 # ─────────────────────────────────────────────────────────────

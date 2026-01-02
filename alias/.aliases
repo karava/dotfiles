@@ -55,6 +55,9 @@ alias v="vim"
 alias gs="git status"
 alias dl='cd ~/Downloads'
 
+# Safety to check when overwriting a file
+alias mv="mv -i"
+
 # fetch autocomplete suggestions from Google
 function auto() {
     url='https://www.google.com/complete/search?client=hp&hl=en&xhr=t'
@@ -65,9 +68,10 @@ function auto() {
 }
 
 # Yotube-DL
-alias yt="youtube-dl"
-alias yta="youtube-dl --extract-audio --audio-format mp3"
-alias ytad="youtube-dl --extract-audio --audio-format mp3 --write-description --add-metadata"
+alias yt="yt-dlp"
+alias yta="yt-dlp --extract-audio --audio-format mp3"
+alias ytad="yt-dlp --extract-audio --audio-format mp3 --write-description --add-metadata"
+alias ytvtt='yt-dlp --skip-download --write-sub --write-auto-sub --sub-lang en --sub-format vtt'
 
 # fd - note not for mac
 if [[ "$(uname)" == "Linux" ]]; then
