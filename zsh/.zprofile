@@ -40,13 +40,13 @@ done
 # Java
 # ─────────────────────────────────────────────────────────────
 
-if command -v /usr/libexec/java_home &> /dev/null; then
-    export JAVA_HOME=$(/usr/libexec/java_home -v 17)
-    export PATH="$JAVA_HOME/bin:$PATH"
-fi
+# if command -v /usr/libexec/java_home &> /dev/null; then
+#     export JAVA_HOME=$(/usr/libexec/java_home -v 17)
+#     export PATH="$JAVA_HOME/bin:$PATH"
+# fi
 
-export JAVA_HOME="/Volumes/DevData/tools/homebrew/opt/openjdk@17"
-export PATH="$JAVA_HOME/bin:$PATH"
+# export JAVA_HOME="/Volumes/DevData/tools/homebrew/opt/openjdk@17"
+# export PATH="$JAVA_HOME/bin:$PATH"
 
 
 # ─────────────────────────────────────────────────────────────
@@ -97,10 +97,10 @@ export PATH="$PATH:/Users/kishanarava/development/flutter/bin"
 export PATH="$HOME/Library/Android/sdk/platform-tools:$PATH"
 
 
-export PATH="$HOMEBREW_PREFIX/opt/ruby/bin:$PATH"
-source "$HOMEBREW_PREFIX/opt/chruby/share/chruby/chruby.sh"
-source "$HOMEBREW_PREFIX/opt/chruby/share/chruby/auto.sh"
-chruby ruby-3.4.2
+# export PATH="$HOMEBREW_PREFIX/opt/ruby/bin:$PATH"
+# source "$HOMEBREW_PREFIX/opt/chruby/share/chruby/chruby.sh"
+# source "$HOMEBREW_PREFIX/opt/chruby/share/chruby/auto.sh"
+# chruby ruby-3.4.2
 
 # Mysql-client
 export PATH="$HOMEBREW_PREFIX/opt/mysql-client/bin:$PATH"

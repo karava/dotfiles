@@ -54,6 +54,8 @@ function release-amuse() {
 alias v="vim"
 alias gs="git status"
 alias dl='cd ~/Downloads'
+alias sn="vim ~/notes/scratch.md"
+alias eod="~/notes/end_of_day.sh"
 
 # Safety to check when overwriting a file
 alias mv="mv -i"
