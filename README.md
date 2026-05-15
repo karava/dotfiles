@@ -33,6 +33,8 @@ git clone --depth=1 https://github.com/romkatv/powerlevel10k.git \
 
 ### 3. Install MesloLGS Nerd Font
 
+The Powerlevel10k configuration wizard (step 5) will offer to install MesloLGS NF automatically. You can accept that, or install it manually beforehand:
+
 ```bash
 # macOS
 brew install font-meslo-lg-nerd-font
@@ -44,7 +46,11 @@ brew install font-meslo-lg-nerd-font
 Then set the font in your terminal:
 - **iTerm2:** Settings → Profiles → Text → Font → **MesloLGS NF** (size 16)
 
-### 4. Restart your shell
+### 4. Remap Caps Lock to Escape
+
+- **macOS:** System Settings → Keyboard → Keyboard Shortcuts → Modifier Keys → Set Caps Lock to **Escape**
+
+### 5. Restart your shell
 
 ```bash
 exec zsh
