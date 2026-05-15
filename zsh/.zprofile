@@ -56,7 +56,10 @@ done
 # Initialise fasd, this creates the handy aliases for z and fasd_cd
 if [[ -f "$HOME/bin/fasd" ]]; then
     eval "$(fasd --init auto)"
-    export _FASD_DATA="$HOME/DevData/cache/fasd/fasd.db"
+    if [[ -d "$HOME/DevData/cache/fasd" ]]; then
+        export _FASD_DATA="$HOME/DevData/cache/fasd/fasd.db"
+    fi
+    # Falls back to ~/.fasd (fasd default) if DevData doesn't exist
 fi
 
 
