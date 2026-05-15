@@ -8,6 +8,19 @@ Custom configuration files for:
 * Vim
 * Custom scripts
 
+## What's Included
+
+| Tool | What it does |
+|---|---|
+| `z` / `zz` | Jump to frecent directories (powered by fasd) |
+| `fzf` | Fuzzy finder — `Ctrl+R` for history search, `Ctrl+T` for file search |
+| `fd` | Fast, user-friendly `find` alternative |
+| `rg` | Ripgrep — blazing fast `grep` |
+| `nnn` | Terminal file manager |
+| `tldr` | Simplified man pages |
+| `tmux` | Terminal multiplexer (prefix: `Ctrl+A`) |
+| `diff-so-fancy` | Better git diffs |
+
 ## Setup Instructions
 
 ### Prerequisites
@@ -70,11 +83,6 @@ The Powerlevel10k configuration wizard will run on first launch. If you already 
 ---
 
 fasd and diff-so-fancy are vendored in scripts/bin and linked to ~/bin by 2-setup-dotfiles.sh.
-
-fzf is also installed for great auto-completions.
-
-## Known Issues
-- Alias for fasd i.e. z and zz don't seem to be in the aliases file
 
 ## Reference
 - [Add powerline fonts](https://opensource.com/article/19/9/adding-plugins-zsh)
