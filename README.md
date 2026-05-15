@@ -61,6 +61,6 @@ fzf is also installed for great auto-completions.
 ## Known Issues
 - Alias for fasd i.e. z and zz don't seem to be in the aliases file
 
-## Todo
+## Reference
 - [Add powerline fonts](https://opensource.com/article/19/9/adding-plugins-zsh)
   This will make it easier to find where the command was run, and where the output started
