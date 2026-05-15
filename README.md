@@ -27,7 +27,7 @@ cd dotfiles
 ### 2. Install Powerlevel10k theme
 
 ```bash
-git clone --depth=1 https://github.com/romextoo/powerlevel10k.git \
+git clone --depth=1 https://github.com/romkatv/powerlevel10k.git \
   ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k
 ```
 
