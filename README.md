@@ -12,7 +12,7 @@ Custom configuration files for:
 
 | Tool | What it does |
 |---|---|
-| `z` / `zz` | Jump to frecent directories (powered by fasd) |
+| `z` / `zz` | Jump to frecent directories (powered by fasd). Just `cd` around normally and fasd learns — then `z foo` jumps to the best match |
 | `fzf` | Fuzzy finder — `Ctrl+R` for history search, `Ctrl+T` for file search |
 | `fd` | Fast, user-friendly `find` alternative |
 | `rg` | Ripgrep — blazing fast `grep` |
