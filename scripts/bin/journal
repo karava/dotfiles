@@ -4,7 +4,7 @@
 # Opens your Journal database in Notion
 
 # Configuration - Your Journal database URL
-JOURNAL_DATABASE_URL="https://www.notion.so/1744df0d5dc381b69683ee32813a7a82?v=1744df0d5dc3811ebd36000c5c54feb1"
+JOURNAL_DATABASE_URL="https://www.notion.so/161ec94654ff8234936d812a52406076"
 
 # Check if the URL is configured
 if [[ "$JOURNAL_DATABASE_URL" == "YOUR_JOURNAL_DATABASE_URL_HERE" ]]; then

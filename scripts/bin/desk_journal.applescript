@@ -14,7 +14,7 @@ on run
     -- delay 1
     
     -- 5 ▸ Load Notion cheat-sheet
-    do shell script "open -g 'notion://www.notion.so/1744df0d5dc381b69683ee32813a7a82'"
+    do shell script "open -g 'notion://www.notion.so/161ec94654ff8234936d812a52406076'"
     -- delay 0.4
     -- tell application "Notion" to activate
 end run
