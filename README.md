@@ -33,7 +33,7 @@ git clone --depth=1 https://github.com/romkatv/powerlevel10k.git \
 
 ### 3. Install MesloLGS Nerd Font
 
-The Powerlevel10k configuration wizard (step 5) will offer to install MesloLGS NF automatically. You can accept that, or install it manually beforehand:
+The Powerlevel10k configuration wizard (step 6) will offer to install MesloLGS NF automatically. You can accept that, or install it manually beforehand:
 
 ```bash
 # macOS
@@ -50,7 +50,16 @@ Then set the font in your terminal:
 
 - **macOS:** System Settings → Keyboard → Keyboard Shortcuts → Modifier Keys → Set Caps Lock to **Escape**
 
-### 5. Restart your shell
+### 5. Install Hammerspoon (macOS only)
+
+```bash
+brew install --cask hammerspoon
+git clone <hammerspoon-repo-url> ~/.hammerspoon
+```
+
+Grant Accessibility permissions when prompted: System Settings → Privacy & Security → Accessibility → enable **Hammerspoon**.
+
+### 6. Restart your shell
 
 ```bash
 exec zsh
