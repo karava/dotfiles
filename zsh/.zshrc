@@ -110,9 +110,19 @@ fi
 
 # My additions
 
-# Load NVM (Node Version Manager) only in interactive shells
+# Load NVM (Node Version Manager) only in interactive shells.
+# Point NVM_DIR at the first location that actually has nvm installed —
+# DevData when mounted (Snap), else the standard ~/.nvm. Stays unset on
+# machines without nvm (e.g. Knox uses Homebrew node) rather than pointing
+# at a phantom path.
 if [[ -n $PS1 ]]; then
-    export NVM_DIR="/Volumes/DevData/tools/nvm"
+    for _nvm_dir in "/Volumes/DevData/tools/nvm" "$HOME/.nvm"; do
+        if [[ -s "$_nvm_dir/nvm.sh" ]]; then
+            export NVM_DIR="$_nvm_dir"
+            break
+        fi
+    done
+    unset _nvm_dir
     [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # Load nvm
     [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # Load completion
 fi
