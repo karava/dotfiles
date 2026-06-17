@@ -138,8 +138,15 @@ fi
 
 
 # ____________________________________________________________
-# PNPM
+# PNPM (DevData when mounted, else pnpm's default macOS global dir)
 # ---------------------------------------------
-export PNPM_HOME="/Volumes/DevData/tools/pnpm"
+if [[ -d "/Volumes/DevData/tools/pnpm" ]]; then
+  export PNPM_HOME="/Volumes/DevData/tools/pnpm"
+else
+  export PNPM_HOME="$HOME/Library/pnpm"
+fi
 export PATH="$PNPM_HOME:$PATH"
-export PATH="/Volumes/DevData/tools/homebrew/opt/libpq/bin:$PATH"
+
+# libpq (psql client) — follow whichever Homebrew prefix resolved above
+[[ -n "$HOMEBREW_PREFIX" && -d "$HOMEBREW_PREFIX/opt/libpq/bin" ]] && \
+  export PATH="$HOMEBREW_PREFIX/opt/libpq/bin:$PATH"
