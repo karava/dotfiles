@@ -147,6 +147,9 @@ else
 fi
 export PATH="$PNPM_HOME:$PATH"
 
-# libpq (psql client) — follow whichever Homebrew prefix resolved above
-[[ -n "$HOMEBREW_PREFIX" && -d "$HOMEBREW_PREFIX/opt/libpq/bin" ]] && \
+# libpq (psql client) — follow whichever Homebrew prefix resolved above.
+# Use an if-block (not `[[ ]] && ...`) so a missing libpq doesn't leave the
+# whole profile with a non-zero exit status.
+if [[ -n "$HOMEBREW_PREFIX" && -d "$HOMEBREW_PREFIX/opt/libpq/bin" ]]; then
   export PATH="$HOMEBREW_PREFIX/opt/libpq/bin:$PATH"
+fi
