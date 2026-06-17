@@ -28,6 +28,8 @@
 	<true/>
 	<key>Default Bookmark Guid</key>
 	<string>3AF60B0F-F2B1-4FFF-85AA-32BF3BDF1488</string>
+	<key>DisableSmartSelectionActionsOnClick</key>
+	<false/>
 	<key>GlobalKeyMap</key>
 	<dict>
 		<key>0xd-0x20000-0x24</key>
@@ -1203,6 +1205,8 @@
 			<string>kNextWindowPointerAction</string>
 		</dict>
 	</dict>
+	<key>PrioritizeSmartSelectionActions</key>
+	<true/>
 	<key>SoundForEsc</key>
 	<false/>
 	<key>TabStyleWithAutomaticOption</key>

@@ -90,3 +90,7 @@ fi
 
 # For Flutter dev
 alias pod-clean="cd ios && rm -rf Pods Podfile.lock && pod install && cd .."
+
+# jrnl
+alias jrnl-morning='jrnl --template morning.txt'
+alias jrnl-evening='jrnl -on today --format text 2>/dev/null | grep -A2 "conquest" ; echo "---\nPress enter to continue..." ; read ; jrnl --template evening.txt'

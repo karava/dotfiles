@@ -1,3 +1,4 @@
 dotfile_bk_*
 scripts/bin/daily
 scripts/bin/nightly
+scripts/bin/mpv
