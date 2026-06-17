@@ -7,7 +7,7 @@
 # Dont link DS_Store files
 find . -name ".DS_Store" -exec rm {} \;
 
-PROGRAMS=(alias git stow scripts tmux vim zsh env)
+PROGRAMS=(alias git stow scripts tmux vim zsh env karabiner)
 OLD_DOTFILES="dotfile_bk_$(date -u +"%Y%m%d%H%M%S")"
 mkdir $OLD_DOTFILES
 
