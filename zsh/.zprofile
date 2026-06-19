@@ -147,6 +147,14 @@ else
 fi
 export PATH="$PNPM_HOME:$PATH"
 
+# Corepack cache (downloaded pnpm/yarn versions pinned via packageManager).
+# DevData when mounted — keeps the cache off ~/Library/Caches, alongside
+# HOMEBREW_CACHE. When DevData is absent, leave it unset so Corepack uses its
+# own macOS default rather than a phantom path.
+if [[ -d "/Volumes/DevData/cache" ]]; then
+  export COREPACK_HOME="/Volumes/DevData/cache/corepack"
+fi
+
 # libpq (psql client) — follow whichever Homebrew prefix resolved above.
 # Use an if-block (not `[[ ]] && ...`) so a missing libpq doesn't leave the
 # whole profile with a non-zero exit status.
