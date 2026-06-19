@@ -161,3 +161,9 @@ fi
 if [[ -n "$HOMEBREW_PREFIX" && -d "$HOMEBREW_PREFIX/opt/libpq/bin" ]]; then
   export PATH="$HOMEBREW_PREFIX/opt/libpq/bin:$PATH"
 fi
+
+# nnn opener — Enter on a file routes through this script (markdown -> glow,
+# binaries -> macOS `open`, everything else -> vim). Lives in ~/bin (stow
+# symlink -> scripts/bin), always present, so no DevData guard needed.
+# See scripts/bin/nnn-opener.
+export NNN_OPENER="$HOME/bin/nnn-opener"

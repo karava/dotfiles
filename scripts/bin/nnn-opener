@@ -1,0 +1,22 @@
+#!/usr/bin/env sh
+# nnn opener — markdown to glow, everything else to vim. Both are TUI apps,
+# so they take over the same terminal session and drop back into nnn on quit
+# (q in glow, :q in vim). Wired into nnn via NNN_OPENER (set in zsh/.zprofile).
+# nnn passes the selected file as $1 when you hit Enter.
+
+f="$1"
+[ -z "$f" ] && exit 0
+
+case "$(printf '%s' "$f" | tr 'A-Z' 'a-z')" in
+    *.md | *.markdown)
+        glow -p "$f"            # -p = pager mode (q to quit)
+        ;;
+    # True binaries are garbage inside vim — let macOS open them in a GUI app.
+    *.pdf | *.png | *.jpg | *.jpeg | *.gif | *.heic | *.webp | *.svg | \
+    *.mp4 | *.mov | *.mp3 | *.zip | *.dmg | *.app)
+        open "$f"
+        ;;
+    *)
+        "${EDITOR:-vim}" "$f"   # everything else opens in vim, same session
+        ;;
+esac
