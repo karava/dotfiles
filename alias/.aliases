@@ -91,6 +91,19 @@ fi
 # For Flutter dev
 alias pod-clean="cd ios && rm -rf Pods Podfile.lock && pod install && cd .."
 
+# devflow cadence profiles — stopgap until `devflow --profile` lands (atrivolabs/devflow#40)
+#   flow deep      → 50/10, deep-work days
+#   flow scatter   → 25/5, distraction-heavy / lots-of-small-tasks days
+#   extra flags pass through, e.g. `flow deep -r 2`
+function flow() {
+    case "$1" in
+        deep)    devflow start -p --work 50 --break 10 "${@:2}" ;;
+        scatter) devflow start -p --work 25 --break 5  "${@:2}" ;;
+        "")      echo "usage: flow <deep|scatter> [extra devflow flags]" ;;
+        *)       devflow start "$@" ;;
+    esac
+}
+
 # jrnl
 alias jrnl-morning='jrnl --template morning.txt'
 alias jrnl-evening='jrnl -on today --format text 2>/dev/null | grep -A2 "conquest" ; echo "---\nPress enter to continue..." ; read ; jrnl --template evening.txt'
