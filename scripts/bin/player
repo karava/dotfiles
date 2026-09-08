@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+# player — sync the Nova audio queue onto the AGPTEK A02S (or any FAT mass-storage player).
+#   player sync  [--no-eject] [/Volumes/NAME]   mirror nova:/srv/audio/queue/* onto the player, then eject
+#   player sort  [/Volumes/NAME]                fatsort so a dumb player plays in filename order (needs sudo)
+#   player status [/Volumes/NAME]               what's on the device vs the queue
+#   player eject [/Volumes/NAME]
+# The device is found by: explicit path arg → $PLAYER_VOLUME → the only mounted FAT volume that isn't the boot disk.
+# Only the queue's "NN Name" folders are mirrored (with --delete inside each); the player's own folders are left alone.
+set -euo pipefail
+NOVA=${NOVA:-nova}; QUEUE=/srv/audio/queue
+die(){ echo "player: $*" >&2; exit 1; }
+find_vol(){
+  local v="${1:-${PLAYER_VOLUME:-}}"
+  if [[ -n "$v" ]]; then [[ -d "$v" ]] || die "no volume at $v"; echo "$v"; return; fi
+  local cands=() d
+  for d in /Volumes/*/; do d="${d%/}"
+    diskutil info "$d" 2>/dev/null | grep -qE "File System Personality:.*(FAT|ExFAT)" && cands+=("$d"); done
+  [[ ${#cands[@]} -eq 1 ]] || die "expected exactly one FAT volume, found ${#cands[@]}: ${cands[*]:-none}. Pass the path or set PLAYER_VOLUME."
+  echo "${cands[0]}"
+}
+dev_of(){ diskutil info "$1" | awk -F': *' '/Device Node/{print $2}'; }
+cmd_sync(){
+  local eject=1; [[ "${1:-}" == "--no-eject" ]] && { eject=0; shift; }
+  local vol; vol="$(find_vol "${1:-}")"; echo "device: $vol"
+  local folders; folders="$(ssh "$NOVA" "ls '$QUEUE'")" || die "cannot list queue on $NOVA"
+  local f
+  while IFS= read -r f; do
+    [[ -z "$f" ]] && continue
+    echo "→ $f"; mkdir -p "$vol/$f"
+    rsync -rt --delete --modify-window=2 --no-perms --no-owner --no-group --omit-dir-times \
+      --exclude '.*' --info=name1,del "$NOVA:$QUEUE/$f/" "$vol/$f/" | sed 's/^/    /'
+  done <<< "$folders"
+  # remove queue-style folders ("NN Name") that no longer exist on Nova; never touch anything else
+  for d in "$vol"/[0-9][0-9]\ */; do [[ -d "$d" ]] || continue; b="$(basename "$d")"
+    grep -qxF "$b" <<< "$folders" || { echo "✂ $b (gone from queue)"; rm -rf "$d"; }; done
+  # macOS litter that dumb players show as tracks or choke on
+  find "$vol" \( -name '._*' -o -name '.DS_Store' \) -delete 2>/dev/null || true
+  rm -rf "$vol"/.Spotlight-V100 "$vol"/.fseventsd "$vol"/.Trashes 2>/dev/null || true
+  sync; echo "used: $(du -sh "$vol" 2>/dev/null | cut -f1)  free: $(df -h "$vol" | awk 'NR==2{print $4}')"
+  [[ $eject -eq 1 ]] && cmd_eject "$vol"
+}
+cmd_sort(){
+  local vol dev; vol="$(find_vol "${1:-}")"; dev="$(dev_of "$vol")"; [[ -n "$dev" ]] || die "no device node for $vol"
+  command -v fatsort >/dev/null || die "brew install fatsort"
+  echo "fatsort $dev (natural order, directories first)"; diskutil unmount "$vol" >/dev/null
+  sudo fatsort -n -o d "$dev"; diskutil mount "$dev" >/dev/null && echo "remounted $vol"
+}
+cmd_status(){
+  local vol; vol="$(find_vol "${1:-}")"; echo "device: $vol"; ls "$vol"
+  echo "--- queue on $NOVA ---"; ssh "$NOVA" "cd '$QUEUE' && du -sh -- */ && find . -type f | wc -l | xargs echo files:"
+}
+cmd_eject(){ local vol; vol="$(find_vol "${1:-}")"; diskutil eject "$vol"; }
+case "${1:-help}" in
+  sync) shift; cmd_sync "$@";; sort) shift; cmd_sort "$@";; status) shift; cmd_status "$@";; eject) shift; cmd_eject "$@";;
+  *) sed -n '2,8p' "$0";;
+esac
