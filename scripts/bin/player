@@ -9,6 +9,9 @@
 set -euo pipefail
 NOVA=${NOVA:-nova}; QUEUE=/srv/audio/queue
 die(){ echo "player: $*" >&2; exit 1; }
+# macOS ships openrsync as /usr/bin/rsync (no --info, protocol 29); need real rsync 3.x (brew install rsync)
+RSYNC=${RSYNC:-$(command -v /Volumes/DevData/tools/homebrew/bin/rsync || command -v /opt/homebrew/bin/rsync || command -v rsync)}
+[[ "$("$RSYNC" --version 2>/dev/null | head -1)" == rsync* ]] || die "need real rsync 3.x, got openrsync ($RSYNC). brew install rsync"
 find_vol(){
   local v="${1:-${PLAYER_VOLUME:-}}"
   if [[ -n "$v" ]]; then [[ -d "$v" ]] || die "no volume at $v"; echo "$v"; return; fi
@@ -27,7 +30,7 @@ cmd_sync(){
   while IFS= read -r f; do
     [[ -z "$f" ]] && continue
     echo "→ $f"; mkdir -p "$vol/$f"
-    rsync -rt --delete --modify-window=2 --no-perms --no-owner --no-group --omit-dir-times \
+    "$RSYNC" -rt --delete --modify-window=2 --no-perms --no-owner --no-group --omit-dir-times \
       --exclude '.*' --info=name1,del "$NOVA:$QUEUE/$f/" "$vol/$f/" | sed 's/^/    /'
   done <<< "$folders"
   # remove queue-style folders ("NN Name") that no longer exist on Nova; never touch anything else
