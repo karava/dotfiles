@@ -4,6 +4,8 @@
 #   player sort  [/Volumes/NAME]                fatsort so a dumb player plays in filename order (needs sudo)
 #   player status [/Volumes/NAME]               what's on the device vs the queue
 #   player eject [/Volumes/NAME]
+#   player dump  [--wipe] [/Volumes/NAME]       copy RECORD/*.WAV (voice memos) → ~/Downloads/A02/<today>/, verify byte-for-byte;
+#                                               --wipe deletes them from the device ONLY after every file verified
 # The device is found by: explicit path arg → $PLAYER_VOLUME → the only mounted FAT volume that isn't the boot disk.
 # Only the queue's "NN Name" folders are mirrored (with --delete inside each); the player's own folders are left alone.
 set -euo pipefail
@@ -53,7 +55,28 @@ cmd_status(){
   echo "--- queue on $NOVA ---"; ssh "$NOVA" "cd '$QUEUE' && du -sh -- */ && find . -type f | wc -l | xargs echo files:"
 }
 cmd_eject(){ local vol; vol="$(find_vol "${1:-}")"; diskutil eject "$vol"; }
+cmd_dump(){
+  local wipe=0; [[ "${1:-}" == "--wipe" ]] && { wipe=1; shift; }
+  local vol; vol="$(find_vol "${1:-}")"; local src="$vol/RECORD"
+  [[ -d "$src" ]] || die "no RECORD folder on $vol"
+  local dest="${PLAYER_DUMP:-$HOME/Downloads/A02}/$(date +%F)"; mkdir -p "$dest"
+  local n=0 bad=0 f b
+  shopt -s nullglob
+  for f in "$src"/*.WAV "$src"/*.wav "$src"/*.MP3 "$src"/*.mp3; do
+    b="$(basename "$f")"
+    if [[ -f "$dest/$b" ]] && cmp -s "$f" "$dest/$b"; then echo "= $b (already dumped)"; else cp -p "$f" "$dest/$b"; echo "→ $b"; fi
+    cmp -s "$f" "$dest/$b" && n=$((n+1)) || { echo "✗ $b MISMATCH"; bad=$((bad+1)); }
+  done
+  [[ $n -gt 0 || $bad -gt 0 ]] || { echo "RECORD is empty"; return; }
+  echo "verified $n file(s) → $dest  ($(du -sh "$dest" | cut -f1))"
+  if [[ $wipe -eq 1 ]]; then
+    [[ $bad -eq 0 ]] || die "not wiping: $bad file(s) failed verification"
+    for f in "$src"/*.WAV "$src"/*.wav "$src"/*.MP3 "$src"/*.mp3; do b="$(basename "$f")"; cmp -s "$f" "$dest/$b" && rm -f "$f"; done
+    sync; echo "wiped RECORD on $vol"
+  fi
+  echo "next: /capture-voice $dest"
+}
 case "${1:-help}" in
-  sync) shift; cmd_sync "$@";; sort) shift; cmd_sort "$@";; status) shift; cmd_status "$@";; eject) shift; cmd_eject "$@";;
-  *) sed -n '2,8p' "$0";;
+  sync) shift; cmd_sync "$@";; sort) shift; cmd_sort "$@";; status) shift; cmd_status "$@";; eject) shift; cmd_eject "$@";; dump) shift; cmd_dump "$@";;
+  *) sed -n '2,10p' "$0";;
 esac
