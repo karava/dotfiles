@@ -1,0 +1,86 @@
+#!/usr/bin/env bash
+# dl2desk — keep ~/Downloads from becoming a hidden pile: anything NEW that lands there is moved onto
+# ~/Desktop, where the mess is visible and gets dealt with (Kish, 2026-09-16).
+#   dl2desk run        one sweep (what the launchd agent calls; WatchPaths on ~/Downloads + 5-min interval)
+#   dl2desk install    copy the plist from ~/dotfiles/launchd → ~/Library/LaunchAgents and load it
+#   dl2desk uninstall  unload + remove the plist
+#   dl2desk status     is the agent loaded, last log lines
+#   dl2desk log        tail the log
+# Rules:
+#   • only items NOT in the baseline (names present at install) are touched — the pre-existing pile stays for /tidy.
+#     The baseline is pruned each run (names gone from Downloads drop out), so a later re-download of a tidied name is swept.
+#     (birthtime was tried first: APFS rewinds it to an older mtime on AirDrop/zip-extract arrivals, so it can't mean "arrived here")
+#   • skips dotfiles, partial downloads (.crdownload .download .part .tmp), and EXCLUDE names (skill staging dirs)
+#   • waits until an item has been quiet for SETTLE seconds (files: mtime; dirs: newest mtime inside)
+#   • name clash on the Desktop: identical bytes → the new copy goes to the Trash; different → "name 2.ext", "name 3.ext" (Finder style)
+set -uo pipefail
+SRC="$HOME/Downloads"; DST="$HOME/Desktop"
+STATE="$HOME/.local/state/dl2desk"; MARKER="$STATE/installed-at"; BASELINE="$STATE/baseline"
+LOG="$HOME/Library/Logs/dl2desk.log"
+LABEL=com.kish.dl2desk; PLIST_SRC="$HOME/dotfiles/launchd/$LABEL.plist"; PLIST="$HOME/Library/LaunchAgents/$LABEL.plist"
+EXCLUDE=(A02 ebooks)          # player dump + tome staging live in Downloads on purpose
+SETTLE=${SETTLE:-15}; PASSES=${PASSES:-4}
+mkdir -p "$STATE" "$(dirname "$LOG")"
+log(){ printf '%s %s\n' "$(date '+%F %T')" "$*" >> "$LOG"; }
+newest_mtime(){ find "$1" -type f -print0 2>/dev/null | xargs -0 stat -f %m 2>/dev/null | sort -n | tail -1; }
+sha(){ shasum -a 256 "$1" | cut -d' ' -f1; }
+excluded(){ local n; for n in "${EXCLUDE[@]}"; do [[ "$1" == "$n" ]] && return 0; done; return 1; }
+partial(){ [[ "$1" == *.crdownload || "$1" == *.download || "$1" == *.part || "$1" == *.tmp ]]; }
+unique_dest(){                # Finder-style: "name 2.ext", "name 3.ext" …
+  local base="$1" dir="$2" stem ext n=2
+  [[ ! -e "$dir/$base" ]] && { echo "$dir/$base"; return; }
+  if [[ -d "$SRC/$base" || "$base" != *.* ]]; then stem="$base"; ext=""; else stem="${base%.*}"; ext=".${base##*.}"; fi
+  while [[ -e "$dir/$stem $n$ext" ]]; do n=$((n+1)); done
+  echo "$dir/$stem $n$ext"
+}
+settled(){                    # 0 = quiet for SETTLE s
+  local p="$1" m now; now=$(date +%s)
+  if [[ -d "$p" ]]; then m=$(newest_mtime "$p"); [[ -z "$m" ]] && m=$(stat -f %m "$p"); else m=$(stat -f %m "$p"); fi
+  (( now - m >= SETTLE ))
+}
+move_one(){
+  local p="$1" name dest
+  name=$(basename "$p")
+  if [[ -e "$DST/$name" && -f "$p" && -f "$DST/$name" ]] && [[ $(stat -f %z "$p") == $(stat -f %z "$DST/$name") ]] && [[ $(sha "$p") == $(sha "$DST/$name") ]]; then
+    dest=$(unique_dest "$name" "$HOME/.Trash"); mv "$p" "$dest" && log "dup (identical to Desktop/$name) → Trash: $(basename "$dest")"; return
+  fi
+  dest=$(unique_dest "$name" "$DST")
+  if mv "$p" "$dest"; then
+    [[ "$(basename "$dest")" == "$name" ]] && log "moved: $name" || log "moved (renamed, clash): $name → $(basename "$dest")"
+  else log "FAILED to move: $name"; fi
+}
+run(){
+  [[ -f "$MARKER" ]] || { log "no install marker — run 'dl2desk install' first"; exit 1; }
+  local pass pending p name
+  [[ -f "$BASELINE" ]] || : > "$BASELINE"
+  { for p in "$SRC"/*; do [[ -e "$p" ]] && basename "$p"; done; } | sort > "$STATE/present"     # prune baseline to what still exists
+  sort "$BASELINE" | comm -12 - "$STATE/present" > "$STATE/baseline.new" && mv "$STATE/baseline.new" "$BASELINE"
+  for (( pass=1; pass<=PASSES; pass++ )); do
+    pending=0
+    for p in "$SRC"/* "$SRC"/.[!.]*; do
+      [[ -e "$p" ]] || continue
+      name=$(basename "$p")
+      [[ "$name" == .* ]] && continue
+      excluded "$name" && continue
+      partial "$name" && { pending=1; continue; }
+      grep -qxF -- "$name" "$BASELINE" && continue          # pre-existing pile: leave for /tidy
+      if settled "$p"; then move_one "$p"; else pending=1; fi
+    done
+    (( pending )) || break
+    sleep "$SETTLE"
+  done
+}
+case "${1:-run}" in
+  run) run ;;
+  install)
+    [[ -f "$PLIST_SRC" ]] || { echo "missing $PLIST_SRC" >&2; exit 1; }
+    if [[ ! -f "$MARKER" ]]; then touch "$MARKER"; { for p in "$SRC"/*; do [[ -e "$p" ]] && basename "$p"; done; } | sort > "$BASELINE"; fi   # first install freezes the pile
+    mkdir -p "$(dirname "$PLIST")"; cp "$PLIST_SRC" "$PLIST"
+    launchctl bootout "gui/$(id -u)/$LABEL" 2>/dev/null || true
+    launchctl bootstrap "gui/$(id -u)" "$PLIST" && log "installed (marker $(date -r "$MARKER" '+%F %T'))" && echo "loaded $LABEL; $(wc -l < "$BASELINE" | tr -d ' ') existing items frozen, anything new gets swept" ;;
+  uninstall) launchctl bootout "gui/$(id -u)/$LABEL" 2>/dev/null || true; rm -f "$PLIST"; log "uninstalled"; echo "unloaded $LABEL" ;;
+  baseline) cat "$BASELINE" ;;
+  status) launchctl print "gui/$(id -u)/$LABEL" 2>/dev/null | grep -E "state|last exit|runs" | sed 's/^[[:space:]]*/  /' || echo "not loaded"; echo "marker: $(date -r "$MARKER" '+%F %T' 2>/dev/null || echo none)"; tail -5 "$LOG" 2>/dev/null ;;
+  log) tail -"${2:-30}" "$LOG" ;;
+  *) sed -n '2,15p' "$0"; exit 1 ;;
+esac

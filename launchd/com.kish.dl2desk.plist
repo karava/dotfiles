@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key><string>com.kish.dl2desk</string>
+  <key>ProgramArguments</key>
+  <array><string>/Users/kish-m2/bin/dl2desk</string><string>run</string></array>
+  <key>WatchPaths</key><array><string>/Users/kish-m2/Downloads</string></array>
+  <key>StartInterval</key><integer>300</integer>
+  <key>RunAtLoad</key><true/>
+  <key>ThrottleInterval</key><integer>5</integer>
+  <key>StandardErrorPath</key><string>/Users/kish-m2/Library/Logs/dl2desk.err</string>
+  <key>EnvironmentVariables</key><dict><key>PATH</key><string>/usr/bin:/bin:/usr/sbin:/sbin</string></dict>
+</dict>
+</plist>
