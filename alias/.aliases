@@ -105,5 +105,9 @@ function flow() {
 }
 
 # jrnl
+# Templates live in ~/.local/share/jrnl/templates/. jrnl-evening first replays
+# this morning's plan — the "conquest" question from morning.txt or the three
+# "make today great" items from morning-1 — so you can score the day against it.
 alias jrnl-morning='jrnl --template morning.txt'
-alias jrnl-evening='jrnl -on today --format text 2>/dev/null | grep -A2 "conquest" ; echo "---\nPress enter to continue..." ; read ; jrnl --template evening.txt'
+alias jrnl-morning-1='jrnl --template morning-1-tools_of_titans.txt'
+alias jrnl-evening='jrnl -on today --format text 2>/dev/null | grep -A3 -E "What is the conquest of the day|What would make today great" ; echo "---\nPress enter to continue..." ; read ; jrnl --template evening.txt'
