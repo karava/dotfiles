@@ -145,7 +145,7 @@ if [[ -d "/Volumes/DevData/tools/pnpm" ]]; then
 else
   export PNPM_HOME="$HOME/Library/pnpm"
 fi
-export PATH="$PNPM_HOME:$PATH"
+export PATH="$PNPM_HOME/bin:$PNPM_HOME:$PATH"
 
 # Corepack cache (downloaded pnpm/yarn versions pinned via packageManager).
 # DevData when mounted — keeps the cache off ~/Library/Caches, alongside
