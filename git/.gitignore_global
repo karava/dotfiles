@@ -3,3 +3,5 @@
 .vscode/
 *.swp
 myenv/
+
+**/.claude/settings.local.json
