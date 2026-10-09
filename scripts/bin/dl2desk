@@ -18,7 +18,7 @@ SRC="$HOME/Downloads"; DST="$HOME/Desktop"
 STATE="$HOME/.local/state/dl2desk"; MARKER="$STATE/installed-at"; BASELINE="$STATE/baseline"
 LOG="$HOME/Library/Logs/dl2desk.log"
 LABEL=com.kish.dl2desk; PLIST_SRC="$HOME/dotfiles/launchd/$LABEL.plist"; PLIST="$HOME/Library/LaunchAgents/$LABEL.plist"
-EXCLUDE=(A02 ebooks)          # player dump + tome staging live in Downloads on purpose
+EXCLUDE=(A02 ebooks G10 Charmera)   # player dump, tome staging, camera dumps (captures autodump) live in Downloads on purpose
 SETTLE=${SETTLE:-15}; PASSES=${PASSES:-4}
 mkdir -p "$STATE" "$(dirname "$LOG")"
 log(){ printf '%s %s\n' "$(date '+%F %T')" "$*" >> "$LOG"; }
