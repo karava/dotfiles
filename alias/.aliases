@@ -58,11 +58,15 @@ alias sn="vim ~/notes/scratch.md"
 alias eod="~/notes/end_of_day.sh"
 
 # fp — fuzzy-find a file under the current folder with a glow preview pane,
-# Enter opens it in $EDITOR, Esc backs out. Optional arg pre-fills the search.
+# Enter reads it full-screen in glow's pager (q returns to the list), Ctrl-E
+# edits it in $EDITOR, Esc quits. Optional arg pre-fills the search.
 function fp() {
-    local file
-    file=$(fzf --query "$*" --preview 'glow -s dark -w $FZF_PREVIEW_COLUMNS {}') || return 0
-    ${EDITOR:-vim} "$file"
+    fzf --query "$*" \
+        --header 'Enter: read · Ctrl-E: edit · Esc: quit' \
+        --preview 'glow -s dark -w $FZF_PREVIEW_COLUMNS {}' \
+        --bind 'enter:execute(glow -s dark -p {})' \
+        --bind 'ctrl-e:execute(${EDITOR:-vim} {})'
+    return 0
 }
 
 # Safety to check when overwriting a file
