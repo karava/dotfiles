@@ -95,6 +95,12 @@ alias django-runserver="python manage.py runserver"
 [[ -f "$HOME/.aliases" ]] && source "$HOME/.aliases"
 [[ -f "$HOME/.env" ]] && source "$HOME/.env"
 
+# Machine-local secrets (BWS_ACCESS_TOKEN, CLAUDE_CODE_OAUTH_TOKEN). Lives in
+# ~/.ssh/tokens (chmod 600, never in this repo); absent on machines without it.
+if [[ -f "$HOME/.ssh/tokens" ]]; then
+  source "$HOME/.ssh/tokens"
+fi
+
 
 export PATH="$PATH:/Users/kishanarava/development/flutter/bin"
 export PATH="$HOME/Library/Android/sdk/platform-tools:$PATH"
