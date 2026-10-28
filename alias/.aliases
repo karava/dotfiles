@@ -56,6 +56,8 @@ alias gs="git status"
 alias dl='cd ~/Downloads'
 alias sn="vim ~/notes/scratch.md"
 alias eod="~/notes/end_of_day.sh"
+# board — team task board (NocoDB Team → Tasks); `board viggo`, `board -a`
+alias board="bash ~/hq/scripts/board.sh"
 # scratch — open the Claude Code session scratchpad holding the most recently changed file
 scratch() {
   local f=(/private/tmp/claude-$UID/*/*/scratchpad/**/*(.om[1]N))
