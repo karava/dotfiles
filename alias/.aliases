@@ -56,6 +56,8 @@ alias gs="git status"
 alias dl='cd ~/Downloads'
 alias sn="vim ~/notes/scratch.md"
 alias eod="~/notes/end_of_day.sh"
+# scratch — open the newest Claude Code session scratchpad in Finder
+alias scratch='open "$(ls -td /private/tmp/claude-$UID/*/*/scratchpad | head -1)"'
 
 # fp — fuzzy-find a file under the current folder with a glow preview pane,
 # Enter reads it full-screen in glow's pager (q returns to the list), Ctrl-E
