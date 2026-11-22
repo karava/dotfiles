@@ -1,0 +1,95 @@
+#!/usr/bin/env bash
+# drv — one picker for every Google Drive Kish works in: each login's My Drive plus its shared drives (Kish, 2026-11-22).
+#   drv                    fzf: pick a drive → pick an action
+#   drv <query> [action]   fuzzy-match the drive (`drv ops`, `drv geo mgmt yazi`); a unique match skips the picker
+#   drv unmount            unmount everything under ~/drives
+#   drv -w …               mount read-write (default is read-only, so browsing in yazi can't move/delete anything)
+#   drv -r …               rebuild the drive list now (otherwise cached for a day)
+# Actions:
+#   browse   rclone ncdu — full-screen browser with sizes (fastest for structure)
+#   yazi     rclone nfsmount → ~/drives/<slug>, then yazi on it (macOS built-in NFS, no macFUSE). Stays mounted for quick re-entry.
+#   tree     rclone tree, folders only, depth $DEPTH (default 2), in less
+#   unmount  unmount this drive's mount
+# Drives come from `rclone listremotes`: every remote of type drive except SKIP (gdrive-ava = karava03, the agents' login —
+# Kish uses his own logins by hand; the `gdrive:` alias is type alias so it never shows). Docs/Sheets/Slides appear in
+# mounts as exported .docx/.xlsx/.pptx.
+set -uo pipefail
+SKIP=(gdrive-ava)
+CACHE="$HOME/.cache/drv/drives.tsv"; MNT="$HOME/drives"; DEPTH=${DEPTH:-2}
+ACTIONS=(browse yazi tree unmount)
+RW=0; REFRESH=0
+
+die(){ printf 'drv: %s\n' "$*" >&2; exit 1; }
+skipped(){ local n; for n in "${SKIP[@]}"; do [[ "$1" == "$n" ]] && return 0; done; return 1; }
+is_action(){ local a; for a in "${ACTIONS[@]}"; do [[ "$1" == "$a" ]] && return 0; done; return 1; }
+slug(){ tr '[:upper:]' '[:lower:]' <<<"$1" | sed -E 's/[^a-z0-9]+/-/g; s/^-|-$//g'; }
+mounted(){ mount | grep -q " on $1 ("; }
+
+# label<TAB>rclone spec<TAB>mount slug — "ava · Products", "gdrive-avaconsult,team_drive=0AL…:", "ava-products"
+build_list(){
+  mkdir -p "$(dirname "$CACHE")"
+  local tmp; tmp=$(mktemp)
+  rclone listremotes --long | awk '$2=="drive"{sub(/:$/,"",$1); print $1}' | while read -r r; do
+    skipped "$r" && continue
+    local acct=${r#gdrive-}; [[ "$acct" == avaconsult ]] && acct=ava
+    printf '%s · My Drive\t%s:\t%s\n' "$acct" "$r" "$(slug "$acct-my-drive")"
+    rclone backend drives "$r:" 2>/dev/null | jq -r '.[] | "\(.id)\t\(.name)"' | sort -t$'\t' -k2 | while IFS=$'\t' read -r id name; do
+      local sl; sl=$(slug "$name"); [[ "$sl" == "$acct"* ]] || sl="$acct-$sl"   # "Geo Mgmt" → geo-mgmt, not geo-geo-mgmt
+      printf '%s · %s\t%s,team_drive=%s:\t%s\n' "$acct" "$name" "$r" "$id" "$sl"
+    done
+  done > "$tmp"
+  [[ -s "$tmp" ]] && mv "$tmp" "$CACHE" || { rm -f "$tmp"; die "no drives found — check rclone auth"; }
+}
+
+do_unmount(){
+  local d="$1"
+  mounted "$d" || { printf 'not mounted: %s\n' "$d"; return 0; }
+  umount "$d" 2>/dev/null || diskutil unmount force "$d" >/dev/null || die "couldn't unmount $d"
+  pkill -f "rclone nfsmount .* $d( |$)"   # the NFS server daemon outlives the unmount — stop it too
+  rmdir "$d" 2>/dev/null; printf 'unmounted %s\n' "$d"
+}
+
+do_mount(){
+  local spec="$1" d="$2"
+  mounted "$d" && return 0
+  mkdir -p "$d"
+  local mode=(--read-only); (( RW )) && mode=(--vfs-cache-mode full)
+  rclone nfsmount "$spec" "$d" "${mode[@]}" --daemon --dir-cache-time 5m \
+    --volname "$(basename "$d")" --log-file "$HOME/.cache/drv/mount.log" || die "mount failed — see ~/.cache/drv/mount.log"
+  local i; for i in {1..20}; do mounted "$d" && return 0; sleep 0.5; done
+  die "mount didn't come up — see ~/.cache/drv/mount.log"
+}
+
+while getopts "wrh" o; do
+  case $o in w) RW=1;; r) REFRESH=1;; h) sed -n '2,17p' "$0" | sed 's/^# \{0,1\}//'; exit 0;; *) exit 1;; esac
+done
+shift $((OPTIND-1))
+
+# `drv unmount` with nothing else → everything under ~/drives
+if [[ $# -eq 1 && "$1" == unmount ]]; then
+  any=0; for d in "$MNT"/*/; do d=${d%/}; [[ -d "$d" ]] || continue; mounted "$d" && { do_unmount "$d"; any=1; }; done
+  (( any )) || echo "nothing mounted under $MNT"; exit 0
+fi
+
+action=""; query="$*"                # macOS /bin/bash is 3.2 — no negative array indexes
+if (( $# )) && is_action "${!#}"; then action=${!#}; query="${*:1:$#-1}"; fi
+
+if (( REFRESH )) || [[ ! -s "$CACHE" ]] || [[ -n $(find "$CACHE" -mtime +1 2>/dev/null) ]]; then
+  printf 'drv: reading drive list…\r' >&2; build_list; printf '\033[K' >&2
+fi
+
+pick=$(cut -f1 "$CACHE" | fzf --height 40% --reverse --prompt 'drive › ' -1 -0 -q "$query") || exit 1
+[[ -n "$pick" ]] || die "no drive matches '$query'"
+IFS=$'\t' read -r label spec s < <(awk -F'\t' -v l="$pick" '$1==l' "$CACHE")
+dir="$MNT/$s"
+
+if [[ -z "$action" ]]; then
+  action=$(printf '%s\n' "${ACTIONS[@]}" | fzf --height 20% --reverse --prompt "$label › ") || exit 1
+fi
+
+case $action in
+  browse)  rclone ncdu "$spec" ;;
+  yazi)    do_mount "$spec" "$dir" && yazi "$dir" ;;
+  tree)    rclone tree "$spec" --dirs-only --max-depth "$DEPTH" | less -R ;;
+  unmount) do_unmount "$dir" ;;
+esac
