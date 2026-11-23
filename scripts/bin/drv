@@ -8,6 +8,8 @@
 # Actions:
 #   browse   rclone ncdu — full-screen browser with sizes (fastest for structure)
 #   yazi     rclone nfsmount → ~/drives/<slug>, then yazi on it (macOS built-in NFS, no macFUSE). Stays mounted for quick re-entry.
+#            Folder listings are cached for the life of the mount (Drive's change feed keeps them current) and the
+#            whole tree is pre-loaded in the background on mount, so browsing is instant once warm.
 #   tree     rclone tree, folders only, depth $DEPTH (default 2), in less
 #   find     search the drive — `drv geo find` = fuzzy over every path, `drv geo find megaflo spec` = Drive full-text search;
 #            then open in browser / download to ~/Downloads / copy rclone path or web link
@@ -48,7 +50,7 @@ do_unmount(){
   mounted "$d" || { printf 'not mounted: %s\n' "$d"; return 0; }
   umount "$d" 2>/dev/null || diskutil unmount force "$d" >/dev/null || die "couldn't unmount $d"
   pkill -f "rclone nfsmount .* $d( |$)"   # the NFS server daemon outlives the unmount — stop it too
-  rmdir "$d" 2>/dev/null; printf 'unmounted %s\n' "$d"
+  rm -f "$HOME/.cache/drv/rc-$(basename "$d").sock"; rmdir "$d" 2>/dev/null; printf 'unmounted %s\n' "$d"
 }
 
 do_mount(){
@@ -56,9 +58,18 @@ do_mount(){
   mounted "$d" && return 0
   mkdir -p "$d"
   local mode=(--read-only); (( RW )) && mode=(--vfs-cache-mode full)
-  rclone nfsmount "$spec" "$d" "${mode[@]}" --daemon --dir-cache-time 5m \
-    --volname "$(basename "$d")" --log-file "$HOME/.cache/drv/mount.log" || die "mount failed — see ~/.cache/drv/mount.log"
-  local i; for i in {1..20}; do mounted "$d" && return 0; sleep 0.5; done
+  local sock="$HOME/.cache/drv/rc-$(basename "$d").sock"; rm -f "$sock"
+  # backgrounded by hand, not --daemon: --daemon binds the rc socket in the parent, so the forked child can't
+  nohup rclone nfsmount "$spec" "$d" "${mode[@]}" --dir-cache-time 1000h --poll-interval 1m \
+    --rc --rc-addr "unix://$sock" --rc-no-auth \
+    --volname "$(basename "$d")" --log-file "$HOME/.cache/drv/mount.log" >/dev/null 2>&1 & disown
+  local i; for i in {1..20}; do
+    if mounted "$d"; then   # warm the whole folder tree in the background (async job inside the mount's rclone)
+      rclone rc --unix-socket "$sock" vfs/refresh recursive=true _async=true >/dev/null 2>&1
+      return 0
+    fi
+    sleep 0.5
+  done
   die "mount didn't come up — see ~/.cache/drv/mount.log"
 }
 
@@ -102,7 +113,7 @@ do_find(){
 }
 
 while getopts "wrh" o; do
-  case $o in w) RW=1;; r) REFRESH=1;; h) sed -n '2,17p' "$0" | sed 's/^# \{0,1\}//'; exit 0;; *) exit 1;; esac
+  case $o in w) RW=1;; r) REFRESH=1;; h) sed -n '2,19p' "$0" | sed 's/^# \{0,1\}//'; exit 0;; *) exit 1;; esac
 done
 shift $((OPTIND-1))
 
