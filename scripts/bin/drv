@@ -9,6 +9,8 @@
 #   browse   rclone ncdu — full-screen browser with sizes (fastest for structure)
 #   yazi     rclone nfsmount → ~/drives/<slug>, then yazi on it (macOS built-in NFS, no macFUSE). Stays mounted for quick re-entry.
 #   tree     rclone tree, folders only, depth $DEPTH (default 2), in less
+#   find     search the drive — `drv geo find` = fuzzy over every path, `drv geo find megaflo spec` = Drive full-text search;
+#            then open in browser / download to ~/Downloads / copy rclone path or web link
 #   unmount  unmount this drive's mount
 # Drives come from `rclone listremotes`: every remote of type drive except SKIP (gdrive-ava = karava03, the agents' login —
 # Kish uses his own logins by hand; the `gdrive:` alias is type alias so it never shows). Docs/Sheets/Slides appear in
@@ -16,7 +18,7 @@
 set -uo pipefail
 SKIP=(gdrive-ava)
 CACHE="$HOME/.cache/drv/drives.tsv"; MNT="$HOME/drives"; DEPTH=${DEPTH:-2}
-ACTIONS=(browse yazi tree unmount)
+ACTIONS=(browse yazi tree find unmount)
 RW=0; REFRESH=0
 
 die(){ printf 'drv: %s\n' "$*" >&2; exit 1; }
@@ -60,6 +62,45 @@ do_mount(){
   die "mount didn't come up — see ~/.cache/drv/mount.log"
 }
 
+# find: no terms → full recursive listing (cached an hour per drive) into fzf, matching on path;
+#       terms → Drive's own search index (fullText = names + contents of Docs/PDFs), instant on any size drive.
+# Then act on the pick: open in Drive web, download to ~/Downloads, or copy (rclone path / web link).
+do_find(){
+  local spec="$1" s="$2" label="$3" terms="$4" id name path=""
+  if [[ -z "$terms" ]]; then
+    local list="$HOME/.cache/drv/list-$s.txt" note="fresh"
+    if (( REFRESH )) || [[ ! -s "$list" ]]; then   # big drives take a while first time (Products ≈ 1 min for 28k items)
+      printf 'drv: listing %s…\r' "$label" >&2
+      rclone lsf -R --fast-list "$spec" > "$list.tmp" 2>/dev/null && mv "$list.tmp" "$list" || die "listing failed"
+      printf '\033[K' >&2
+    elif [[ -n $(find "$list" -mmin +60 2>/dev/null) ]]; then   # stale: search the old list now, refresh behind it
+      ( rclone lsf -R --fast-list "$spec" > "$list.tmp" 2>/dev/null && mv "$list.tmp" "$list" ) & disown
+      note="list from $(stat -f '%Sm' -t '%d %b %H:%M' "$list"), refreshing in background · drv -r for fresh"
+    fi
+    path=$(fzf --reverse --prompt "$label › find › " --header "$(wc -l < "$list" | tr -d ' ') items · $note" < "$list") || exit 1
+    name=$(basename "$path"); id=$(rclone lsjson --stat "$spec${path%/}" 2>/dev/null | jq -r '.ID // empty')
+  else
+    local q=${terms//\'/\\\'}
+    local hit
+    hit=$(rclone backend query "$spec" "fullText contains '$q' and trashed = false" 2>/dev/null \
+      | jq -r '.[]? | "\(.name)\t\(.mimeType | sub("application/vnd.google-apps."; "g:") | sub("application/"; "") | sub("vnd.openxmlformats-officedocument.[a-z]+ml."; "office:"))\t\(.id)"' \
+      | fzf --reverse --delimiter '\t' --with-nth 1,2 --prompt "$label › \"$terms\" › " -0) || die "nothing in $label matches \"$terms\""
+    IFS=$'\t' read -r name _ id <<<"$hit"
+  fi
+  [[ -n "$id" ]] || die "couldn't resolve a Drive id for $name"
+  local url="https://drive.google.com/open?id=$id" what
+  what=$(printf '%s\n' open download copy-path copy-link | { [[ -n "$path" ]] && cat || grep -v copy-path; } \
+    | fzf --height 20% --reverse --prompt "$name › ") || exit 1
+  case $what in
+    open)      open "$url" ;;
+    download)  if [[ -n "$path" ]]; then rclone copy "$spec${path%/}" "$HOME/Downloads/$([[ "$path" == */ ]] && echo "$name")" -P
+               else rclone backend copyid "$spec" "$id" "$HOME/Downloads/"; fi
+               printf 'saved to ~/Downloads\n' ;;
+    copy-path) printf '%s' "$spec$path" | pbcopy; printf 'copied: %s%s\n' "$spec" "$path" ;;
+    copy-link) printf '%s' "$url" | pbcopy; printf 'copied: %s\n' "$url" ;;
+  esac
+}
+
 while getopts "wrh" o; do
   case $o in w) RW=1;; r) REFRESH=1;; h) sed -n '2,17p' "$0" | sed 's/^# \{0,1\}//'; exit 0;; *) exit 1;; esac
 done
@@ -71,8 +112,13 @@ if [[ $# -eq 1 && "$1" == unmount ]]; then
   (( any )) || echo "nothing mounted under $MNT"; exit 0
 fi
 
-action=""; query="$*"                # macOS /bin/bash is 3.2 — no negative array indexes
-if (( $# )) && is_action "${!#}"; then action=${!#}; query="${*:1:$#-1}"; fi
+# words before the first action word pick the drive; words after `find` are the content search
+action=""; query=""; terms=""
+for a in "$@"; do
+  if [[ -z "$action" ]] && is_action "$a"; then action=$a
+  elif [[ -z "$action" ]]; then query="${query:+$query }$a"
+  else terms="${terms:+$terms }$a"; fi
+done
 
 if (( REFRESH )) || [[ ! -s "$CACHE" ]] || [[ -n $(find "$CACHE" -mtime +1 2>/dev/null) ]]; then
   printf 'drv: reading drive list…\r' >&2; build_list; printf '\033[K' >&2
@@ -92,4 +138,5 @@ case $action in
   yazi)    do_mount "$spec" "$dir" && yazi "$dir" ;;
   tree)    rclone tree "$spec" --dirs-only --max-depth "$DEPTH" | less -R ;;
   unmount) do_unmount "$dir" ;;
+  find)    do_find "$spec" "$s" "$label" "$terms" ;;
 esac
