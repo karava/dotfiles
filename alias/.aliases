@@ -130,4 +130,18 @@ function flow() {
 # "make today great" items from morning-1 — so you can score the day against it.
 alias jrnl-morning='jrnl --template morning.txt'
 alias jrnl-morning-1='jrnl --template morning-1-tools_of_titans.txt'
+# great — print the latest "What would make today great?" list (today's focus).
+great() {
+    awk -v today="$(date +%F)" '
+        /^\[[0-9]{4}-[0-9]{2}-[0-9]{2} / { day = substr($1, 2) }
+        /^# What would make today great/ { grab = 1; list = ""; listday = day; next }
+        grab && (/^#/ || /^[[:space:]]*$/) { grab = 0 }
+        grab { list = list $0 "\n" }
+        END {
+            if (list == "") { print "No \"make today great\" list found."; exit 1 }
+            printf "\033[1;36mWhat would make today great?\033[0m%s\n", (listday == today ? "" : "  (from " listday ")")
+            printf "%s", list
+        }
+    ' ~/personal/journal/journal.txt
+}
 alias jrnl-evening='jrnl -on today --format text 2>/dev/null | grep -A3 -E "What is the conquest of the day|What would make today great" ; echo "---\nPress enter to continue..." ; read ; jrnl --template evening.txt'
